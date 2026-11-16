@@ -41,7 +41,13 @@ const FONTS = [
 const FONT_PARAM = {};
 FONTS.forEach(([, l]) => l.forEach(([f, p]) => { FONT_PARAM[f] = p; }));
 
-const SKINS = [['white', '화이트'], ['cloud', '클라우드'], ['dark', '다크'], ['mac', 'macOS'], ['grid', '그리드'], ['pattern', '패턴'], ['photo', '사진 배경']];
+const SKINS = [['white', '화이트'], ['cloud', '클라우드'], ['dark', '다크'], ['mac', 'macOS'], ['glass', '글래스'], ['editorial', '에디토리얼'], ['block', '컬러 블록'], ['grid', '그리드'], ['note', '노트'], ['film', '필름'], ['pattern', '패턴'], ['photo', '사진 배경']];
+const GLASS = {
+  aurora: ['오로라', 'radial-gradient(45% 60% at 12% 18%, #a9c8ff 0%, rgba(169,200,255,0) 70%), radial-gradient(40% 55% at 88% 12%, #ffc7e4 0%, rgba(255,199,228,0) 70%), radial-gradient(55% 65% at 75% 92%, #c7b8ff 0%, rgba(199,184,255,0) 70%), radial-gradient(45% 55% at 20% 95%, #b5f0e3 0%, rgba(181,240,227,0) 70%), #eef1fb'],
+  mint: ['민트', 'radial-gradient(45% 60% at 15% 15%, #b8f2e6 0%, rgba(184,242,230,0) 70%), radial-gradient(45% 60% at 90% 20%, #aed9e0 0%, rgba(174,217,224,0) 70%), radial-gradient(55% 65% at 70% 95%, #ffe3b8 0%, rgba(255,227,184,0) 70%), #eef7f5'],
+  peach: ['피치', 'radial-gradient(45% 60% at 12% 20%, #ffd0b5 0%, rgba(255,208,181,0) 70%), radial-gradient(45% 60% at 88% 15%, #ffb8c9 0%, rgba(255,184,201,0) 70%), radial-gradient(55% 65% at 70% 95%, #d9c4f0 0%, rgba(217,196,240,0) 70%), #fbf1f0'],
+  night: ['밤', 'radial-gradient(45% 60% at 15% 20%, #2b3a8c 0%, rgba(43,58,140,0) 70%), radial-gradient(45% 60% at 88% 15%, #6a2c7a 0%, rgba(106,44,122,0) 70%), radial-gradient(55% 65% at 70% 95%, #134e6f 0%, rgba(19,78,111,0) 70%), #0d1020'],
+};
 const WALLS = {
   mist: ['안개', 'radial-gradient(60% 80% at 18% 18%, #e8f3ff 0%, rgba(232,243,255,0) 70%), radial-gradient(70% 80% at 85% 85%, #c9d8f2 0%, rgba(201,216,242,0) 70%), linear-gradient(150deg,#eef2f8,#c3d0e6)'],
   dawn: ['새벽', 'radial-gradient(60% 80% at 15% 20%, #ffc9d9 0%, rgba(255,201,217,0) 70%), radial-gradient(60% 70% at 85% 25%, #c3b6ff 0%, rgba(195,182,255,0) 70%), radial-gradient(70% 80% at 60% 100%, #8cb8ff 0%, rgba(140,184,255,0) 70%), linear-gradient(135deg,#f3cde0,#a9bff2)'],
@@ -68,9 +74,9 @@ function defaults() {
       { id: 'dream', type: 'dream', title: '드림 성향', on: true, wide: false, showAll: true, opts: { ONLY: false, OPEN: false, CBC: false }, note: '' },
       { id: 'ng', type: 'text', title: 'NG', on: true, wide: false, body: '' },
     ],
-    gallery: { on: true, title: '좋아하는 캐릭터', pos: 'auto', share: 46, caption: 'over', items: [blankItem(), blankItem()] },
+    gallery: { on: true, title: '', pos: 'auto', share: 46, caption: 'over', items: [blankItem(), blankItem()] },
     text: { head: 'Pretendard', body: 'Pretendard', scale: 100, lh: 1.6, ls: 0, align: 'left', keepAll: true, titleStyle: 'plain', autofit: true, radius: 16 },
-    skin: { type: 'white', accent: '#3182f6', wall: 'mist', winTone: 'light', gt: 'light', pattern: 'dots', patBg: '#e8f3ff', patFg: '#c4dcfc', patSize: 36, image: null, imgFit: 'cover', dimTone: 'dark', dim: 20, panelTone: 'light', panelAlpha: 92 },
+    skin: { type: 'white', accent: '#3182f6', wall: 'mist', winTone: 'light', gt: 'light', glass: 'aurora', pattern: 'dots', patBg: '#e8f3ff', patFg: '#c4dcfc', patSize: 36, image: null, imgFit: 'cover', dimTone: 'dark', dim: 20, panelTone: 'light', panelAlpha: 92 },
     layout: { ratio: '32', w: 3, h: 2 },
     scale: 2,
   };
@@ -216,6 +222,27 @@ function skinVars(W, H) {
       ? { ...DARK, '--c-bg': '#1c1c20', '--c-bg2': '#1c1c20', '--c-panel': '#2a2a30', '--c-line': 'rgba(255,255,255,.12)', '--c-bar': '#232328' }
       : { ...LIGHT, '--c-panel': '#f2f4f6', '--c-line': 'rgba(0,23,51,.09)', '--c-bar': '#f9fafb' });
     bg = (WALLS[sk.wall] || WALLS.mist)[1];
+  } else if (sk.type === 'glass') {
+    const night = sk.glass === 'night';
+    Object.assign(v, night ? { ...DARK, '--c-panel': 'rgba(255,255,255,.08)', '--c-line': 'rgba(255,255,255,.14)', '--c-bg2': '#1a1f35', '--glass-edge': 'rgba(255,255,255,.16)' }
+                           : { ...LIGHT, '--c-panel': 'rgba(255,255,255,.5)', '--c-line': 'rgba(25,31,40,.09)', '--c-bg2': '#ffffff', '--glass-edge': 'rgba(255,255,255,.85)' });
+    bg = (GLASS[sk.glass] || GLASS.aurora)[1];
+    cls = 'sk-glass';
+  } else if (sk.type === 'editorial') {
+    Object.assign(v, { ...LIGHT, '--c-bg': '#fafaf8', '--c-bg2': '#fafaf8', '--c-ink': '#111111', '--c-ink2': '#3b3b3b', '--c-sub': '#6e6e6e', '--c-panel': '#ecebe8', '--c-line': '#111111' });
+    cls = 'sk-editorial';
+  } else if (sk.type === 'block') {
+    Object.assign(v, LIGHT);
+    bg = `linear-gradient(180deg, ${acc} 0, ${acc} var(--band, 32%), #ffffff var(--band, 32%))`;
+    cls = 'sk-block';
+  } else if (sk.type === 'note') {
+    const ln = Math.round(Math.min(W, H) / 26), mg = Math.round(Math.min(W, H) * .035);
+    Object.assign(v, { ...LIGHT, '--c-bg': '#fdfdfb', '--c-bg2': '#fdfdfb', '--c-panel': '#f1f3f6', '--c-line': 'rgba(49,130,246,.28)' });
+    bg = `linear-gradient(90deg, transparent ${mg}px, rgba(240,68,82,.5) ${mg}px, rgba(240,68,82,.5) ${mg + 2}px, transparent ${mg + 2}px), repeating-linear-gradient(180deg, transparent 0, transparent ${ln - 1}px, rgba(49,130,246,.14) ${ln - 1}px, rgba(49,130,246,.14) ${ln}px), #fdfdfb`;
+    cls = 'sk-note';
+  } else if (sk.type === 'film') {
+    Object.assign(v, { ...DARK, '--c-bg': '#0b0b0d', '--c-bg2': '#0b0b0d', '--c-panel': '#18181c', '--c-line': 'rgba(255,255,255,.14)' });
+    cls = 'sk-film';
   } else if (sk.type === 'grid') {
     const t = (GT[sk.gt] || GT.light)[1], cell = Math.round(Math.min(W, H) / 28);
     Object.assign(v, { '--c-bg': t.bg, '--c-bg2': t.panel, '--c-ink': t.ink, '--c-ink2': t.ink2, '--c-sub': t.sub, '--c-panel': t.panel, '--c-line': t.rule, '--c-rule': t.rule });
@@ -252,9 +279,9 @@ const PIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const hint = (t) => `<span class="ph-hint">${t}</span>`;
 const picHTML = (u, x, y, z) => `<img class="pic" src="${u}" alt="" draggable="false" style="object-position:${x}% ${y}%;transform-origin:${x}% ${y}%;transform:scale(${z || 1})">`;
 /* 서식: **굵게** · *기울임* · ==형광펜== */
-const fmt = (h) => h.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/==(.+?)==/g, '<mark>$1</mark>').replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*/g, '$1<i>$2</i>');
+const fmt = (h) => h.replace(/\{\{(#[0-9a-fA-F]{3,8})\|([\s\S]+?)\}\}/g, '<span style="color:$1">$2</span>').replace(/__(.+?)__/g, '<u>$1</u>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/==(.+?)==/g, '<mark>$1</mark>').replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*/g, '$1<i>$2</i>');
 const rich = (s) => fmt(esc(s));
-const plain = (s) => String(s ?? '').replace(/\*\*|==|\*/g, '');
+const plain = (s) => String(s ?? '').replace(/\{\{#[0-9a-fA-F]{3,8}\||\}\}|\*\*|==|__|\*/g, '');
 
 function sectionHTML(s, side) {
   let body = '';
@@ -313,9 +340,11 @@ function render() {
   const handle = p.handle.replace(/^@/, '').trim();
   const photo = imgURL(p.photo);
 
-  const boxed = state.skin.type === 'pattern' || state.skin.type === 'photo';
-  const info = `<div class="info${boxed ? ' boxed' : ''}">
-    <div class="prof" data-go="profile" data-drop="photo"><div class="ph"${photo ? ' data-img="photo"' : ''}>${photo ? picHTML(photo, p.px, p.py, p.pz) : `<span class="ph-hint">${PERSON}</span>`}</div>
+  const boxed = ['pattern', 'photo', 'glass'].includes(state.skin.type);
+  const d0 = new Date(), today = `${d0.getFullYear()}. ${String(d0.getMonth() + 1).padStart(2, '0')}. ${String(d0.getDate()).padStart(2, '0')}`;
+  const mast = state.skin.type === 'editorial' ? `<div class="mast"><span>PROFILE</span><span>${handle ? '@' + esc(handle) : ''}</span><span>${today}</span></div>` : '';
+  const info = `<div class="info${boxed ? ' boxed' : ''}">${mast}
+    <div class="prof" data-go="about" data-drop="photo"><div class="ph"${photo ? ' data-img="photo"' : ''}>${photo ? picHTML(photo, p.px, p.py, p.pz) : `<span class="ph-hint">${PERSON}</span>`}</div>
       <div class="who">${p.name.trim() ? `<div class="nm">${esc(p.name)}</div>` : `<div class="nm">${hint('닉네임')}</div>`}${p.showHandle && handle ? `<div class="hd">@${esc(handle)}</div>` : ''}${p.showSummary && p.summary.trim() ? `<div class="sm">${rich(p.summary)}</div>` : ''}</div></div>
     <div class="list">${listHTML()}</div></div>`;
 
@@ -348,6 +377,15 @@ function render() {
         <div class="titlebar" style="height:${tb}px"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><div class="tt">${esc(p.name.trim() || '프로필')}</div></div>
         <div class="content" style="left:${pad * .7}px;right:${pad * .7}px;top:${tb + pad * .6}px;bottom:${pad * .7}px">${lay}</div></div>`;
   } else {
+    if (state.skin.type === 'film') {
+      const sh = Math.round(k * .06), hw = Math.round(sh * .42), hh = Math.round(sh * .52), step = Math.round(sh * .9);
+      const holes = svgURI(`<svg xmlns='http://www.w3.org/2000/svg' width='${step}' height='${sh}'><rect x='${(step - hw) / 2}' y='${(sh - hh) / 2}' width='${hw}' height='${hh}' rx='${hw * .22}' fill='#f2f2f2' fill-opacity='.9'/></svg>`);
+      const edge = `<span>${handle ? '@' + esc(handle).toUpperCase() : 'PROFILE'}</span><span>▸ 01</span><span>▸ 01A</span><span>${today}</span>`;
+      html += `<div class="strip" style="top:0;height:${sh}px;background:${holes.replace(/"/g, '&quot;')} 0 0/${step}px ${sh}px repeat-x"></div><div class="strip" style="bottom:0;height:${sh}px;background:${holes.replace(/"/g, '&quot;')} 0 0/${step}px ${sh}px repeat-x"></div><div class="edge" style="top:${sh}px">${edge}</div><div class="edge" style="bottom:${sh}px">${edge}</div>`;
+      html += `<div class="content" style="left:${pad}px;right:${pad}px;top:${Math.round(sh + pad * .75)}px;bottom:${Math.round(sh + pad * .75)}px">${lay}</div>`;
+      card.innerHTML = html; layoutPass(); fit(); return;
+    }
+    if (state.skin.type === 'note') { const mg = Math.round(k * .035); html += `<div class="punch" style="left:${Math.round(mg * .45)}px"></div>`; }
     if (state.skin.type === 'grid') html += [[pad, pad], [W - pad, pad], [pad, H - pad], [W - pad, H - pad]].map(([x, y]) => `<i class="cm" style="left:${x}px;top:${y}px"></i>`).join('');
     html += `<div class="content" style="inset:${pad}px">${lay}</div>`;
   }
@@ -366,11 +404,20 @@ function layoutPass() {
   setF(1);
   if (t.autofit) {
     let lo = .45, hi = 1.12;
-    setF(hi); if (!over()) { $$('.grid', card).forEach(applyGrid); return; }
+    setF(hi); if (!over()) { $$('.grid', card).forEach(applyGrid); setBand(); return; }
     for (let i = 0; i < 9; i++) { const m = (lo + hi) / 2; setF(m); if (over()) hi = m; else lo = m; }
     setF(lo);
   }
   $$('.grid', card).forEach(applyGrid);
+  setBand();
+}
+/* 컬러 블록: 프로필 줄 아래까지 포인트 색 띠 */
+function setBand() {
+  if (state.skin.type !== 'block') return;
+  const pr = $('.prof', card); if (!pr) return;
+  let y = 0, el = pr;
+  while (el && el !== card) { y += el.offsetTop; el = el.offsetParent; }
+  card.style.setProperty('--band', (y + pr.offsetHeight + Math.round(Math.min(card.offsetWidth, card.offsetHeight) * .03)) + 'px');
 }
 
 /* =========================================================
@@ -415,21 +462,21 @@ const UI = {
 };
 
 const PANES = [
-  { id: 'profile', icon: 'person', label: '프로필', html: () => `${UI.head('프로필', '메인트 맨 위에 들어가는 내 정보예요.')}
-    ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 고르기">${icon('person')}</button><div class="img-acts"><button type="button" class="chip" data-pick="photo"><span data-icon="image"></span>사진 고르기</button><button type="button" class="chip danger" data-act="photo-del" hidden>지우기</button></div></div><div id="photo-adj" hidden>${UI.slider('확대', 'profile.pz', 1, 4, .01, '×')}${UI.slider('가로 위치', 'profile.px', 0, 100, 1, '%')}${UI.slider('세로 위치', 'profile.py', 0, 100, 1, '%')}</div>`, '끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌거나 휠을 굴려도 맞출 수 있어요.')}
-    ${UI.sec('정보', UI.text('닉네임', 'profile.name', '닉네임') + `<div class="row stack"><span class="row-label">아이디</span><input class="input" type="text" data-k="profile.handle" placeholder="아이디" autocapitalize="off" spellcheck="false"></div>` + UI.area('계정 요약', 'profile.summary', 2, '계정을 한두 줄로 소개해 주세요'))}
-    ${UI.sec('보이기', UI.sw('아이디', 'profile.showHandle') + UI.sw('계정 요약', 'profile.showSummary'))}` },
-  { id: 'about', icon: 'note', label: '소개', html: () => `${UI.head('소개', '자기소개, 트윗 성향, 드림 성향, NG를 적어요. 이름과 순서는 ‘구성’에서 바꿔요.')}<div id="about-list"></div><p class="footnote">글 칸을 누르면 뜨는 도구로 <b>굵게</b> · <i>기울임</i> · 형광펜을 넣을 수 있어요. 단축키 Ctrl/⌘ + B · I · Shift + H</p>` },
-  { id: 'chars', icon: 'image', label: '캐릭터', html: () => `${UI.head('좋아하는 캐릭터', '1개부터 6개까지, 개수에 맞춰 그리드가 알아서 배치돼요.')}
-    <div class="section-title"><span id="g-count"></span></div><div class="section" id="g-list"></div>
-    <p class="footnote">사진은 칸에 끌어다 놓거나, 여러 장을 한 번에 골라도 돼요. 미리보기에서 사진을 끌면 위치가, 휠을 굴리면 확대가 바뀌어요. 커미션 출처는 이미지 오른쪽 아래에 작게 들어가요.</p>
-    ${UI.sec('이름표', UI.seg('표시', 'gallery.caption', [['over', '이미지 위'], ['below', '이미지 아래'], ['none', '숨김']]))}` },
   { id: 'layout', icon: 'layers', label: '구성', html: () => `${UI.head('구성', '판형과 메뉴의 순서 · 이름 · 너비를 정해요.')}
     <div class="section-title"><span>판형</span></div><div class="section"><div class="tiles ratio" id="ratio-tiles"></div><div class="row" id="custom-row" hidden><span class="row-label">직접 입력</span><div class="custom-ratio"><input class="input" type="number" min="1" max="40" id="rw" aria-label="가로"><span>:</span><input class="input" type="number" min="1" max="40" id="rh" aria-label="세로"></div></div></div>
     <div class="section-title"><span>메뉴</span></div><div class="section" id="menu-list"></div>
     <div class="picks" style="padding:10px 2px 0"><button type="button" class="chip" data-act="sec-add" data-type="text"><span data-icon="plus"></span>글 메뉴 추가</button><button type="button" class="chip" data-act="sec-add" data-type="tags"><span data-icon="plus"></span>태그 메뉴 추가</button></div>
     <p class="footnote">‘반’ 너비 메뉴 두 개가 이어지면 나란히 놓여요.</p>
-    ${UI.sec('캐릭터 갤러리', UI.sw('갤러리 보이기', 'gallery.on') + UI.text('제목', 'gallery.title', '비우면 제목 없이') + UI.seg('위치', 'gallery.pos', [['auto', '자동'], ['left', '왼쪽'], ['right', '오른쪽'], ['bottom', '아래']]) + UI.slider('크기', 'gallery.share', 28, 64, 1, '%'), '자동은 가로형이면 오른쪽, 세로형 · 정사각형이면 아래예요.')}` },
+    ${UI.sec('갤러리', UI.sw('갤러리 보이기', 'gallery.on') + UI.text('제목', 'gallery.title', '비우면 제목 없이') + UI.seg('위치', 'gallery.pos', [['auto', '자동'], ['left', '왼쪽'], ['right', '오른쪽'], ['bottom', '아래']]) + UI.slider('크기', 'gallery.share', 28, 64, 1, '%'), '자동은 가로형이면 오른쪽, 세로형 · 정사각형이면 아래예요.')}` },
+  { id: 'about', icon: 'note', label: '소개', html: () => `${UI.head('소개')}
+    ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 고르기">${icon('person')}</button><div class="img-acts"><button type="button" class="chip" data-pick="photo"><span data-icon="image"></span>사진 고르기</button><button type="button" class="chip danger" data-act="photo-del" hidden>지우기</button></div></div><div id="photo-adj" hidden>${UI.slider('확대', 'profile.pz', 1, 4, .01, '×')}${UI.slider('가로 위치', 'profile.px', 0, 100, 1, '%')}${UI.slider('세로 위치', 'profile.py', 0, 100, 1, '%')}</div>`, '끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌거나 휠을 굴려도 맞출 수 있어요.')}
+    ${UI.sec('정보', UI.text('닉네임', 'profile.name', '닉네임') + `<div class="row stack"><span class="row-label">아이디</span><input class="input" type="text" data-k="profile.handle" placeholder="아이디" autocapitalize="off" spellcheck="false"></div>` + UI.area('계정 요약', 'profile.summary', 2, '계정을 한두 줄로 소개해 주세요'))}
+    ${UI.sec('보이기', UI.sw('아이디', 'profile.showHandle') + UI.sw('계정 요약', 'profile.showSummary'))}
+    <div id="about-list"></div><p class="footnote">글 칸을 누르면 뜨는 도구로 <b>굵게</b> · <i>기울임</i> · <u>밑줄</u> · 형광펜 · 글자 색을 넣을 수 있어요. 단축키 Ctrl/⌘ + B · I · U · Shift + H</p>` },
+  { id: 'chars', icon: 'image', label: '갤러리', html: () => `${UI.head('갤러리', '1개부터 6개까지, 개수에 맞춰 그리드가 알아서 배치돼요.')}
+    <div class="section-title"><span id="g-count"></span></div><div class="section" id="g-list"></div>
+    <p class="footnote">사진은 칸에 끌어다 놓거나, 여러 장을 한 번에 골라도 돼요. 미리보기에서 사진을 끌면 위치가, 휠을 굴리면 확대가 바뀌어요. 커미션 출처는 이미지 오른쪽 아래에 작게 들어가요.</p>
+    ${UI.sec('이름표', UI.seg('표시', 'gallery.caption', [['over', '이미지 위'], ['below', '이미지 아래'], ['none', '숨김']]))}` },
   { id: 'text', icon: 'type', label: '텍스트', html: () => `${UI.head('텍스트', '글꼴과 조판을 정해요.')}
     ${UI.sec('글꼴', UI.font('제목 · 이름', 'text.head', '닉네임, 메뉴 제목, 캐릭터 이름') + UI.font('본문', 'text.body', '소개 글, 태그, 계정 요약'))}
     ${UI.sec('조판', UI.slider('글자 크기', 'text.scale', 60, 140, 1, '%') + UI.slider('줄 간격', 'text.lh', 1.2, 2.2, .05, '×') + UI.slider('자간', 'text.ls', -.05, .12, .005, 'em') + UI.seg('정렬', 'text.align', [['left', '왼쪽'], ['center', '가운데']]) + UI.seg('메뉴 제목', 'text.titleStyle', [['plain', '기본'], ['accent', '포인트'], ['bold', '굵게']]) + UI.sw('단어 단위 줄바꿈', 'text.keepAll', '한글 단어가 중간에서 끊기지 않아요') + UI.sw('자동 맞춤', 'text.autofit', '글이 넘치면 크기를 줄여 카드 안에 맞춰요'))}` },
@@ -451,7 +498,7 @@ $('[data-zoom="in"]').innerHTML = icon('plus');
 const paintIcons = (root = document) => $$('[data-icon]', root).forEach((el) => { if (!el.firstChild) el.innerHTML = icon(el.dataset.icon); });
 paintIcons();
 
-let curPane = 'profile';
+let curPane = 'about';
 function setPane(id, user) {
   if (user && isMobile()) {
     if (curPane === id && app.classList.contains('sheet-open')) { app.classList.remove('sheet-open'); return; }
@@ -569,6 +616,11 @@ function skinPV(id) {
     case 'mac': return `<span class="skin-pv" style="background:${(WALLS[sk.wall] || WALLS.mist)[1]}">${box(9, 16, 82, 72, '#fff', 4)}<i style="left:13%;top:21%;display:flex;gap:2px"><b style="width:4px;height:4px;border-radius:50%;background:#ff5f57"></b><b style="width:4px;height:4px;border-radius:50%;background:#febc2e"></b><b style="width:4px;height:4px;border-radius:50%;background:#28c840"></b></i></span>`;
     case 'grid': { const t = (GT[sk.gt] || GT.light)[1]; return `<span class="skin-pv" style="background:${svgURI(gridSVG(5, t))} 0 0/20px 20px, ${t.bg}">${[[10, 18, 12, 19], [10, 46, 40, 40], [56, 18, 34, 68]].map(([l, tp, w, h]) => `<i style="left:${l}%;top:${tp}%;width:${w}%;height:${h}%;background:${t.panel};box-shadow:0 0 0 1px ${t.rule}"></i>`).join('')}</span>`; }
     case 'pattern': return `<span class="skin-pv" style="background:${svgURI(patternSVG(sk.pattern, sk.patFg, 12))} 0 0/12px 12px, ${sk.patBg}">${body('rgba(255,255,255,.92)', 'rgba(255,255,255,.92)')}</span>`;
+    case 'glass': { const night = sk.glass === 'night'; const pnl = night ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.6)'; return `<span class="skin-pv" style="background:${(GLASS[sk.glass] || GLASS.aurora)[1]}"><i style="left:8%;top:14%;width:46%;height:72%;background:${pnl};border-radius:5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)"></i><i style="left:58%;top:14%;width:34%;height:72%;background:${pnl};border-radius:5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)"></i></span>`; }
+    case 'editorial': return `<span class="skin-pv" style="background:#fafaf8"><i style="left:9%;top:13%;width:43%;height:2px;background:#111"></i><i style="left:9%;top:20%;width:28%;height:7px;background:#111;border-radius:1px"></i><i style="left:9%;top:52%;width:43%;height:1px;background:#111"></i><i style="left:9%;top:66%;width:43%;height:1px;background:#111"></i><i style="left:9%;top:80%;width:43%;height:1px;background:#111"></i><i style="left:58%;top:13%;width:33%;height:74%;background:#d9d7d2"></i></span>`;
+    case 'block': return `<span class="skin-pv" style="background:linear-gradient(180deg, ${sk.accent} 0 40%, #fff 40%)"><i style="left:9%;top:14%;width:13%;height:20%;border-radius:99px;background:rgba(255,255,255,.85)"></i><i style="left:26%;top:19%;width:20%;height:6px;border-radius:2px;background:#fff"></i><i style="left:9%;top:62%;width:42%;height:1px;background:#e5e8eb"></i><i style="left:9%;top:76%;width:42%;height:1px;background:#e5e8eb"></i><i style="left:58%;top:14%;width:33%;height:72%;background:#e5e8eb;border-radius:3px"></i></span>`;
+    case 'note': return `<span class="skin-pv" style="background:linear-gradient(90deg, transparent 6px, rgba(240,68,82,.5) 6px, rgba(240,68,82,.5) 7px, transparent 7px), repeating-linear-gradient(180deg, transparent 0 7px, rgba(49,130,246,.2) 7px 8px), #fdfdfb"><i style="left:58%;top:16%;width:33%;height:68%;background:#e5e8eb;border-radius:3px"></i><i style="left:14%;top:18%;width:24%;height:5px;background:rgba(49,130,246,.35)"></i></span>`;
+    case 'film': return `<span class="skin-pv" style="background:#0b0b0d"><i style="left:0;right:0;top:3px;height:5px;background:repeating-linear-gradient(90deg, transparent 0 3px, #ddd 3px 6px, transparent 6px 9px)"></i><i style="left:0;right:0;bottom:3px;height:5px;background:repeating-linear-gradient(90deg, transparent 0 3px, #ddd 3px 6px, transparent 6px 9px)"></i><i style="left:9%;top:24%;width:43%;height:52%;background:#1c1c20;border-radius:2px"></i><i style="left:58%;top:24%;width:33%;height:52%;background:#2a2a30;border-radius:2px"></i></span>`;
     case 'photo': { const u = imgURL(sk.image); return `<span class="skin-pv" style="background:${u ? `url(&quot;${u}&quot;) center/cover` : 'linear-gradient(135deg,#e8f3ff,#c9d8f2)'}">${body('rgba(255,255,255,.9)', 'rgba(255,255,255,.9)')}</span>`; }
   }
   return '';
@@ -578,6 +630,11 @@ function renderSkin() {
   $('#skin-tiles').innerHTML = SKINS.map(([id, l]) => `<button type="button" class="tile${sk.type === id ? ' on' : ''}" data-act="skin" data-s="${id}">${skinPV(id)}<span>${l}</span></button>`).join('');
   let o = '';
   if (sk.type === 'mac') o = UI.sec('macOS', UI.seg('배경화면', 'skin.wall', Object.entries(WALLS).map(([k, [n]]) => [k, n])) + UI.seg('창', 'skin.winTone', [['light', '라이트'], ['dark', '다크']]));
+  else if (sk.type === 'glass') o = UI.sec('글래스', UI.seg('배경', 'skin.glass', Object.entries(GLASS).map(([k, [n]]) => [k, n])), '흐린 빛 위에 반투명한 판을 띄운 스타일이에요.');
+  else if (sk.type === 'editorial') o = `<p class="footnote" style="padding-top:12px">잡지 지면처럼 굵은 이름과 검은 괘선으로 정리해요. 맨 위에 날짜가 든 머리말이 들어가요.</p>`;
+  else if (sk.type === 'block') o = `<p class="footnote" style="padding-top:12px">프로필 줄까지 포인트 색 띠를 깔아요. 띠 색은 아래 포인트 색으로 바꿔요.</p>`;
+  else if (sk.type === 'note') o = `<p class="footnote" style="padding-top:12px">줄 노트 위에 적은 것처럼 보여요. 닉네임에 형광펜이 들어가요.</p>`;
+  else if (sk.type === 'film') o = `<p class="footnote" style="padding-top:12px">필름 한 컷처럼 위아래에 구멍과 번호가 들어가요.</p>`;
   else if (sk.type === 'grid') o = UI.sec('그리드', UI.seg('톤', 'skin.gt', Object.entries(GT).map(([k, [n]]) => [k, n])), '가는 선으로 칸을 나눈 격자예요. 모서리에 재단 표시가 들어가요.');
   else if (sk.type === 'pattern') o = `<div class="section-title"><span>무늬</span></div><div class="section"><div class="tiles pats">${PATTERNS.map(([p, n]) => `<button type="button" class="tile${sk.pattern === p ? ' on' : ''}" data-act="pattern" data-p="${p}"><span class="pat-pv" style="background:${svgURI(patternSVG(p, sk.patFg, 16))} 0 0/16px 16px, ${sk.patBg}"></span><span>${n}</span></button>`).join('')}</div>${UI.color('바탕 색', 'skin.patBg')}${UI.color('무늬 색', 'skin.patFg')}${UI.slider('무늬 크기', 'skin.patSize', 16, 96, 2, 'px')}</div>`;
   else if (sk.type === 'photo') o = UI.sec('사진 배경', `<div class="row img-row"><button type="button" class="thumb" data-pick="bg" aria-label="배경 사진 고르기" style="${imgURL(sk.image) ? `background-image:url(&quot;${imgURL(sk.image)}&quot;)` : ''}">${imgURL(sk.image) ? '' : icon('image')}</button><div class="img-acts"><button type="button" class="chip" data-pick="bg"><span data-icon="image"></span>${sk.image ? '바꾸기' : '사진 고르기'}</button>${sk.image ? '<button type="button" class="chip danger" data-act="bg-del">지우기</button>' : ''}</div></div>` + UI.seg('채우기', 'skin.imgFit', [['cover', '꽉 채우기'], ['tile', '바둑판']]) + UI.seg('덮개', 'skin.dimTone', [['dark', '어둡게'], ['light', '밝게']]) + UI.slider('덮개 농도', 'skin.dim', 0, 80, 1, '%'));
@@ -588,7 +645,7 @@ function renderSkin() {
   syncIn($('#skin-opts')); syncIn($('#accents')); paintIcons($('#skin-opts'));
 }
 function renderPhotoRow() {
-  const u = imgURL(state.profile.photo), th = $('[data-pane="profile"] .thumb');
+  const u = imgURL(state.profile.photo), th = $('[data-drop-row="photo"] .thumb');
   th.style.backgroundImage = u ? `url("${u}")` : ''; th.innerHTML = u ? '' : icon('person');
   $('[data-act="photo-del"]').hidden = !u;
   $('#photo-adj').hidden = !u;
@@ -684,7 +741,7 @@ panel.addEventListener('click', (e) => {
     if ('num' in seg.dataset) v = +v; else if ('bool' in seg.dataset) v = v === 'true';
     setPath(state, seg.dataset.seg, v);
     syncSeg(seg);
-    if (/^skin\.(wall|gt)$/.test(seg.dataset.seg)) renderSkin();
+    if (/^skin\.(wall|gt|glass)$/.test(seg.dataset.seg)) renderSkin();
     schedule(); return;
   }
   const pick = e.target.closest('[data-pick]');
@@ -742,7 +799,7 @@ function placeFmt() {
   fmtBar.style.left = Math.round(Math.max(8, Math.min(r.right - bw, innerWidth - bw - 8))) + 'px';
 }
 document.addEventListener('focusin', (e) => { if (isTextField(e.target)) { fmtEl = e.target; placeFmt(); } });
-document.addEventListener('focusout', () => setTimeout(() => { if (!isTextField(document.activeElement)) { fmtEl = null; fmtBar.hidden = true; } }, 0));
+document.addEventListener('focusout', () => setTimeout(() => { if (!isTextField(document.activeElement) && !fmtBar.contains(document.activeElement)) { fmtEl = null; fmtBar.hidden = true; fmtColors.hidden = true; } }, 0));
 panelScroll.addEventListener('scroll', placeFmt, { passive: true });
 addEventListener('resize', placeFmt);
 function wrapSel(el, mk) {
@@ -762,8 +819,44 @@ function wrapSel(el, mk) {
   }
   el.dispatchEvent(new Event('input', { bubbles: true }));
 }
-fmtBar.addEventListener('mousedown', (e) => e.preventDefault());
-fmtBar.addEventListener('click', (e) => { const b = e.target.closest('[data-fmt]'); if (b && fmtEl) wrapSel(fmtEl, b.dataset.fmt); });
+/* 글자 색: {{#색|글}} */
+const fmtColors = $('#fmt-colors');
+const TEXT_COLORS = ['#f04452', '#fe7e3a', '#ffb331', '#03b26c', '#18a5a5', '#3182f6', '#a234c7', '#f66c9b', '#8b95a1'];
+fmtColors.insertAdjacentHTML('afterbegin', TEXT_COLORS.map((c) => `<button type="button" class="fc" style="--c:${c}" data-color="${c}" aria-label="${c}"></button>`).join(''));
+let lastSel = null;
+function colorSel(el, hex) {
+  const v = el.value;
+  let a = el.selectionStart, b = el.selectionEnd;
+  while (a < b && /\s/.test(v[a])) a++;
+  while (b > a && /\s/.test(v[b - 1])) b--;
+  const pre = v.slice(0, a).match(/\{\{#[0-9a-fA-F]{3,8}\|$/);
+  if (pre && v.slice(b, b + 2) === '}}') { // 이미 색이 있으면 바꾸거나 지움
+    const s = a - pre[0].length, inner = v.slice(a, b), op = hex ? `{{${hex}|` : '';
+    el.value = v.slice(0, s) + op + inner + (hex ? '}}' : '') + v.slice(b + 2);
+    el.setSelectionRange(s + op.length, s + op.length + inner.length);
+  } else {
+    const inner = v.slice(a, b).replace(/\{\{#[0-9a-fA-F]{3,8}\||\}\}/g, '');
+    if (hex && !inner) { toast('색을 바꿀 글자를 먼저 골라 주세요'); return; }
+    const op = hex ? `{{${hex}|` : '';
+    el.value = v.slice(0, a) + op + inner + (hex ? '}}' : '') + v.slice(b);
+    el.setSelectionRange(a + op.length, a + op.length + inner.length);
+  }
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+}
+fmtBar.addEventListener('mousedown', (e) => { if (e.target.tagName !== 'INPUT' && !e.target.closest('label')) e.preventDefault(); if (fmtEl) lastSel = { el: fmtEl, a: fmtEl.selectionStart, b: fmtEl.selectionEnd }; });
+fmtBar.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-fmt]');
+  if (b && fmtEl) { wrapSel(fmtEl, b.dataset.fmt); return; }
+  if (e.target.closest('#fmt-color-btn')) { fmtColors.hidden = !fmtColors.hidden; placeFmt(); return; }
+  const c = e.target.closest('[data-color]');
+  if (c && fmtEl) { colorSel(fmtEl, c.dataset.color || ''); }
+});
+$('#fmt-custom').addEventListener('change', (e) => {
+  if (!lastSel) return;
+  const { el, a, b } = lastSel;
+  el.focus(); el.setSelectionRange(a, b); fmtEl = el;
+  colorSel(el, e.target.value);
+});
 
 /* =========================================================
    이미지 넣기: 고르기 · 끌어다 놓기 · 붙여넣기
@@ -815,7 +908,7 @@ document.addEventListener('drop', (e) => {
   const d = dropTargetOf(e);
   const files = [...e.dataTransfer.files];
   if (d) putImages(d.target, files);
-  else if (curPane === 'profile') putImages('photo', files);
+  else if (curPane === 'about') putImages('photo', files);
   else putImages('g-new', files);
 });
 document.addEventListener('paste', (e) => {
@@ -823,7 +916,7 @@ document.addEventListener('paste', (e) => {
   const files = [...(e.clipboardData?.files || [])].filter((f) => f.type.startsWith('image/'));
   if (!files.length) return;
   e.preventDefault();
-  putImages(curPane === 'profile' ? 'photo' : curPane === 'style' && state.skin.type === 'photo' ? 'bg' : 'g-new', files);
+  putImages(curPane === 'about' ? 'photo' : curPane === 'style' && state.skin.type === 'photo' ? 'bg' : 'g-new', files);
 });
 
 /* =========================================================
@@ -955,8 +1048,8 @@ $('#btn-copy').addEventListener('click', copyImage);
 document.addEventListener('keydown', (e) => {
   const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
   if (mod && k === 's') { e.preventDefault(); saveImage(); }
-  if (mod && isTextField(e.target) && (k === 'b' || k === 'i' || (k === 'h' && e.shiftKey))) {
-    e.preventDefault(); wrapSel(e.target, k === 'b' ? '**' : k === 'i' ? '*' : '=='); return;
+  if (mod && isTextField(e.target) && (k === 'b' || k === 'i' || k === 'u' || (k === 'h' && e.shiftKey))) {
+    e.preventDefault(); wrapSel(e.target, k === 'b' ? '**' : k === 'i' ? '*' : k === 'u' ? '__' : '=='); return;
   }
   if (mod && (k === 'z' || k === 'y') && !(e.target.closest && e.target.closest('input, textarea, select'))) {
     e.preventDefault(); if (k === 'y' || e.shiftKey) redo(); else undo(); return;

@@ -85,7 +85,13 @@
 <div class="fmtbar" id="fmtbar" hidden>
   <button type="button" data-fmt="**" title="굵게 (Ctrl/⌘ + B)"><b>B</b></button>
   <button type="button" data-fmt="*" title="기울임 (Ctrl/⌘ + I)"><i>I</i></button>
+  <button type="button" data-fmt="__" title="밑줄 (Ctrl/⌘ + U)"><u>U</u></button>
   <button type="button" data-fmt="==" title="형광펜 (Ctrl/⌘ + Shift + H)"><mark>H</mark></button>
+  <button type="button" id="fmt-color-btn" title="글자 색" aria-label="글자 색"><span class="fc-a">A</span></button>
+  <div class="fmt-colors" id="fmt-colors" hidden>
+    <label class="fc custom" title="직접 고르기"><input type="color" id="fmt-custom" aria-label="글자 색 직접 고르기"></label>
+    <button type="button" class="fc none" data-color="" title="색 지우기" aria-label="색 지우기"></button>
+  </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
