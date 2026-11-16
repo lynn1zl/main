@@ -71,7 +71,7 @@ function defaults() {
     gallery: { on: true, title: '좋아하는 캐릭터', pos: 'auto', share: 46, caption: 'over', items: [blankItem(), blankItem()] },
     text: { head: 'Pretendard', body: 'Pretendard', scale: 100, lh: 1.6, ls: 0, align: 'left', keepAll: true, titleStyle: 'plain', autofit: true, radius: 16 },
     skin: { type: 'white', accent: '#3182f6', wall: 'mist', winTone: 'light', gt: 'light', pattern: 'dots', patBg: '#e8f3ff', patFg: '#c4dcfc', patSize: 36, image: null, imgFit: 'cover', dimTone: 'dark', dim: 20, panelTone: 'light', panelAlpha: 92 },
-    layout: { ratio: '169', w: 16, h: 9 },
+    layout: { ratio: '32', w: 3, h: 2 },
     scale: 2,
   };
 }
@@ -81,7 +81,7 @@ function merge(def, src) {
   for (const k of Object.keys(src)) out[k] = (def[k] && typeof def[k] === 'object' && !Array.isArray(def[k])) ? merge(def[k], src[k]) : src[k];
   return out;
 }
-const normalize = (o) => merge(defaults(), o || {});
+function normalize(o) { const d = merge(defaults(), o || {}); if (d.text.titleStyle === 'line') d.text.titleStyle = 'bold'; return d; }
 
 /* =========================================================
    공용
@@ -204,9 +204,9 @@ function dims() {
 }
 function skinVars(W, H) {
   const sk = state.skin, acc = sk.accent;
-  const v = { '--accent': acc, '--c-on-accent': lum(acc) > .5 ? '#191f28' : '#ffffff', '--accent-soft': rgba(acc, .12), '--accent-text': acc, '--c-rule': 'rgba(0,0,0,.15)' };
+  const v = { '--hl': rgba(acc, .22), '--accent': acc, '--c-on-accent': lum(acc) > .5 ? '#191f28' : '#ffffff', '--accent-soft': rgba(acc, .12), '--accent-text': acc, '--c-rule': 'rgba(0,0,0,.15)' };
   let bg = '', dim = '', cls = '';
-  const LIGHT = { '--c-bg': '#ffffff', '--c-bg2': '#ffffff', '--c-ink': '#191f28', '--c-ink2': '#4e5968', '--c-sub': '#8b95a1', '--c-panel': '#f2f4f6', '--c-line': '#d1d6db' };
+  const LIGHT = { '--c-bg': '#ffffff', '--c-bg2': '#ffffff', '--c-ink': '#191f28', '--c-ink2': '#4e5968', '--c-sub': '#8b95a1', '--c-panel': '#f2f4f6', '--c-line': '#e5e8eb' };
   const DARK = { '--c-bg': '#101012', '--c-bg2': '#101012', '--c-ink': '#f2f4f6', '--c-ink2': '#c1c7cf', '--c-sub': '#8b95a1', '--c-panel': '#1c1c20', '--c-line': '#3a3a42' };
   if (sk.type === 'white') Object.assign(v, LIGHT);
   else if (sk.type === 'cloud') Object.assign(v, LIGHT, { '--c-bg': '#f2f4f6', '--c-panel': '#ffffff' });
@@ -238,6 +238,7 @@ function skinVars(W, H) {
   if (lum(v['--c-ink']) > .5 && lum(acc) < .3) { // 어두운 바탕 + 어두운 포인트 색: 글자는 밝게
     v['--accent-text'] = tint(acc, .55);
     v['--accent-soft'] = 'rgba(255,255,255,.12)';
+    v['--hl'] = 'rgba(255,255,255,.2)';
   }
   return { v, bg, dim, cls };
 }
@@ -249,18 +250,22 @@ const card = $('#card');
 const PERSON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1.2-3.6 4-5.2 7-5.2s5.8 1.6 7 5.2"/></svg>';
 const PIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m5 17 4.5-4.5 3 3L15 13l4 4"/></svg>';
 const hint = (t) => `<span class="ph-hint">${t}</span>`;
+/* 서식: **굵게** · *기울임* · ==형광펜== */
+const fmt = (h) => h.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/==(.+?)==/g, '<mark>$1</mark>').replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*/g, '$1<i>$2</i>');
+const rich = (s) => fmt(esc(s));
+const plain = (s) => String(s ?? '').replace(/\*\*|==|\*/g, '');
 
-function sectionHTML(s) {
+function sectionHTML(s, side) {
   let body = '';
-  if (s.type === 'text') body = `<div class="txt">${s.body.trim() ? esc(s.body) : hint('내용을 입력하세요')}</div>`;
+  if (s.type === 'text') body = `<div class="txt">${s.body.trim() ? rich(s.body) : hint('내용을 입력하세요')}</div>`;
   else if (s.type === 'tags') {
     const list = s.tags.filter((t) => s.showAll || t.on);
     body = `<div class="tags">${list.map((t) => `<span class="tag${t.on ? '' : ' off'}">${esc(t.label)}</span>`).join('') || `<span class="txt">${hint('태그를 골라 주세요')}</span>`}</div>`;
   } else if (s.type === 'dream') {
     const keys = ['ONLY', 'OPEN', 'CBC'].filter((k) => s.showAll || s.opts[k]);
-    body = `<div class="dream">${keys.map((k) => `<span class="dr${s.opts[k] ? '' : ' off'}">${k}</span>`).join('') || `<span class="txt">${hint('성향을 골라 주세요')}</span>`}</div>${s.note.trim() ? `<div class="dnote">${esc(s.note)}</div>` : ''}`;
+    body = `<div class="dream">${keys.map((k) => `<span class="dr${s.opts[k] ? '' : ' off'}">${k}</span>`).join('') || `<span class="txt">${hint('성향을 골라 주세요')}</span>`}</div>${s.note.trim() ? `<div class="dnote">${rich(s.note)}</div>` : ''}`;
   }
-  return `<div class="blk${s.wide ? ' wide' : ''}" data-go="about">${s.title ? `<div class="lbl">${esc(s.title)}</div>` : ''}${body}</div>`;
+  return `<div class="sec${s.wide ? ' wide' : ' ' + side}" data-go="about">${s.title ? `<div class="lbl">${esc(s.title)}</div>` : ''}${body}</div>`;
 }
 const GRID = {
   wide: { 1: ['a'], 2: ['a b'], 3: ['a b', 'a c'], 4: ['a b', 'c d'], 5: ['a b c', 'a d e'], 6: ['a b c', 'd e f'] },
@@ -277,6 +282,14 @@ function applyGrid(grid) {
   [...grid.children].forEach((c, i) => { c.style.gridArea = 'abcdef'[i]; });
 }
 
+function listHTML() {
+  let col = 0;
+  return state.sections.filter((s) => s.on).map((s) => {
+    if (s.wide) { col = 0; return sectionHTML(s); }
+    const side = col === 0 ? 'l' : 'r'; col = 1 - col;
+    return sectionHTML(s, side);
+  }).join('');
+}
 function render() {
   const { W, H } = dims();
   const t = state.text, g = state.gallery, p = state.profile;
@@ -299,12 +312,13 @@ function render() {
   const handle = p.handle.replace(/^@/, '').trim();
   const photo = imgURL(p.photo);
 
-  const info = `<div class="info">
+  const boxed = state.skin.type === 'pattern' || state.skin.type === 'photo';
+  const info = `<div class="info${boxed ? ' boxed' : ''}">
     <div class="prof" data-go="profile" data-drop="photo"><div class="ph" style="${photo ? `background-image:url(&quot;${photo}&quot;)` : ''}">${photo ? '' : `<span class="ph-hint">${PERSON}</span>`}</div>
-      <div class="who">${p.name.trim() ? `<div class="nm">${esc(p.name)}</div>` : `<div class="nm">${hint('닉네임')}</div>`}${p.showHandle && handle ? `<div class="hd">@${esc(handle)}</div>` : ''}${p.showSummary && p.summary.trim() ? `<div class="sm">${esc(p.summary)}</div>` : ''}</div></div>
-    <div class="bento">${state.sections.filter((s) => s.on).map(sectionHTML).join('')}</div></div>`;
+      <div class="who">${p.name.trim() ? `<div class="nm">${esc(p.name)}</div>` : `<div class="nm">${hint('닉네임')}</div>`}${p.showHandle && handle ? `<div class="hd">@${esc(handle)}</div>` : ''}${p.showSummary && p.summary.trim() ? `<div class="sm">${rich(p.summary)}</div>` : ''}</div></div>
+    <div class="list">${listHTML()}</div></div>`;
 
-  const gal = !showGal ? '' : `<div class="gal ${g.caption === 'below' ? 'cap-below' : g.caption === 'over' ? 'cap-over' : ''}" data-go="chars">${g.title ? `<div class="lbl">${esc(g.title)}</div>` : ''}<div class="grid">${g.items.map((it, j) => {
+  const gal = !showGal ? '' : `<div class="gal${boxed ? ' boxed' : ''} ${g.caption === 'below' ? 'cap-below' : g.caption === 'over' ? 'cap-over' : ''}" data-go="chars">${g.title ? `<div class="lbl">${esc(g.title)}</div>` : ''}<div class="grid">${g.items.map((it, j) => {
     const hasCap = g.caption !== 'none' && (it.genre.trim() || it.name.trim());
     const credit = it.credit.trim() ? esc(it.credit) : '';
     const credInCap = credit && hasCap && g.caption === 'over';
@@ -328,7 +342,7 @@ function render() {
     const mb = Math.round(k * .036), inset = Math.round(k * .05), tb = 46;
     const d = new Date();
     const date = `${d.getMonth() + 1}월 ${d.getDate()}일 (${'일월화수목금토'[d.getDay()]})`;
-    html += `<div class="menubar" style="height:${mb}px;font-size:${Math.round(mb * .42)}px"><b>메인트 니니닝!</b><span>파일</span><span>편집</span><span>보기</span><span class="sp">${handle ? '@' + esc(handle) : ''}</span><span>${date}</span></div>
+    html += `<div class="menubar" style="height:${mb}px;font-size:${Math.round(mb * .42)}px"><span>파일</span><span>편집</span><span>보기</span><span class="sp">${handle ? '@' + esc(handle) : ''}</span><span>${date}</span></div>
       <div class="win" style="left:${inset}px;right:${inset}px;top:${mb + inset * .7}px;bottom:${inset}px">
         <div class="titlebar" style="height:${tb}px"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><div class="tt">${esc(p.name.trim() || '프로필')}</div></div>
         <div class="content" style="left:${pad * .7}px;right:${pad * .7}px;top:${tb + pad * .6}px;bottom:${pad * .7}px">${lay}</div></div>`;
@@ -344,13 +358,14 @@ function render() {
 /* 글이 넘치면 글자 크기를 줄여 카드 안에 맞춤 */
 function layoutPass() {
   const t = state.text;
-  const info = $('.info', card), bento = $('.bento', card);
+  const info = $('.info', card), list = $('.list', card);
   const base = 27 * (t.scale / 100);
   const setF = (f) => card.style.setProperty('--fz', (base * f).toFixed(2) + 'px');
-  const over = () => info.scrollHeight > info.clientHeight + 1 || bento.scrollHeight > bento.clientHeight + 1 || info.scrollWidth > info.clientWidth + 1;
+  const over = () => info.scrollHeight > info.clientHeight + 1 || list.scrollWidth > list.clientWidth + 1;
   setF(1);
-  if (t.autofit && over()) {
-    let lo = .45, hi = 1;
+  if (t.autofit) {
+    let lo = .45, hi = 1.12;
+    setF(hi); if (!over()) { $$('.grid', card).forEach(applyGrid); return; }
     for (let i = 0; i < 9; i++) { const m = (lo + hi) / 2; setF(m); if (over()) hi = m; else lo = m; }
     setF(lo);
   }
@@ -401,9 +416,9 @@ const UI = {
 const PANES = [
   { id: 'profile', icon: 'person', label: '프로필', html: () => `${UI.head('프로필', '메인트 맨 위에 들어가는 내 정보예요.')}
     ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 고르기">${icon('person')}</button><div class="img-acts"><button type="button" class="chip" data-pick="photo"><span data-icon="image"></span>사진 고르기</button><button type="button" class="chip danger" data-act="photo-del" hidden>지우기</button></div></div>`, '끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요.')}
-    ${UI.sec('정보', UI.text('닉네임', 'profile.name', '닉네임') + `<div class="row stack"><span class="row-label">아이디</span><input class="input" type="text" data-k="profile.handle" placeholder="@twitter_id" autocapitalize="off" spellcheck="false"></div>` + UI.area('계정 요약', 'profile.summary', 2, '성인 · 무언팔 환영 · 장르 잡식'))}
+    ${UI.sec('정보', UI.text('닉네임', 'profile.name', '닉네임') + `<div class="row stack"><span class="row-label">아이디</span><input class="input" type="text" data-k="profile.handle" placeholder="아이디" autocapitalize="off" spellcheck="false"></div>` + UI.area('계정 요약', 'profile.summary', 2, '계정을 한두 줄로 소개해 주세요'))}
     ${UI.sec('보이기', UI.sw('아이디', 'profile.showHandle') + UI.sw('계정 요약', 'profile.showSummary'))}` },
-  { id: 'about', icon: 'note', label: '소개', html: () => `${UI.head('소개', '자기소개, 트윗 성향, 드림 성향, NG를 적어요. 이름과 순서는 ‘구성’에서 바꿔요.')}<div id="about-list"></div>` },
+  { id: 'about', icon: 'note', label: '소개', html: () => `${UI.head('소개', '자기소개, 트윗 성향, 드림 성향, NG를 적어요. 이름과 순서는 ‘구성’에서 바꿔요.')}<div id="about-list"></div><p class="footnote">글 칸을 누르면 뜨는 도구로 <b>굵게</b> · <i>기울임</i> · 형광펜을 넣을 수 있어요. 단축키 Ctrl/⌘ + B · I · Shift + H</p>` },
   { id: 'chars', icon: 'image', label: '캐릭터', html: () => `${UI.head('좋아하는 캐릭터', '1개부터 6개까지, 개수에 맞춰 그리드가 알아서 배치돼요.')}
     <div class="section-title"><span id="g-count"></span></div><div class="section" id="g-list"></div>
     <p class="footnote">사진은 칸에 끌어다 놓거나, 여러 장을 한 번에 골라도 돼요. 커미션 출처는 이미지 오른쪽 아래에 작게 들어가요.</p>
@@ -416,13 +431,13 @@ const PANES = [
     ${UI.sec('캐릭터 갤러리', UI.sw('갤러리 보이기', 'gallery.on') + UI.text('제목', 'gallery.title', '비우면 제목 없이') + UI.seg('위치', 'gallery.pos', [['auto', '자동'], ['left', '왼쪽'], ['right', '오른쪽'], ['bottom', '아래']]) + UI.slider('크기', 'gallery.share', 28, 64, 1, '%'), '자동은 가로형이면 오른쪽, 세로형 · 정사각형이면 아래예요.')}` },
   { id: 'text', icon: 'type', label: '텍스트', html: () => `${UI.head('텍스트', '글꼴과 조판을 정해요.')}
     ${UI.sec('글꼴', UI.font('제목 · 이름', 'text.head', '닉네임, 메뉴 제목, 캐릭터 이름') + UI.font('본문', 'text.body', '소개 글, 태그, 계정 요약'))}
-    ${UI.sec('조판', UI.slider('글자 크기', 'text.scale', 60, 140, 1, '%') + UI.slider('줄 간격', 'text.lh', 1.2, 2.2, .05, '×') + UI.slider('자간', 'text.ls', -.05, .12, .005, 'em') + UI.seg('정렬', 'text.align', [['left', '왼쪽'], ['center', '가운데']]) + UI.seg('메뉴 제목', 'text.titleStyle', [['plain', '기본'], ['accent', '포인트'], ['line', '라인']]) + UI.sw('단어 단위 줄바꿈', 'text.keepAll', '한글 단어가 중간에서 끊기지 않아요') + UI.sw('자동 맞춤', 'text.autofit', '글이 넘치면 크기를 줄여 카드 안에 맞춰요'))}` },
+    ${UI.sec('조판', UI.slider('글자 크기', 'text.scale', 60, 140, 1, '%') + UI.slider('줄 간격', 'text.lh', 1.2, 2.2, .05, '×') + UI.slider('자간', 'text.ls', -.05, .12, .005, 'em') + UI.seg('정렬', 'text.align', [['left', '왼쪽'], ['center', '가운데']]) + UI.seg('메뉴 제목', 'text.titleStyle', [['plain', '기본'], ['accent', '포인트'], ['bold', '굵게']]) + UI.sw('단어 단위 줄바꿈', 'text.keepAll', '한글 단어가 중간에서 끊기지 않아요') + UI.sw('자동 맞춤', 'text.autofit', '글이 넘치면 크기를 줄여 카드 안에 맞춰요'))}` },
   { id: 'style', icon: 'palette', label: '스킨', html: () => `${UI.head('스킨', '바탕과 포인트 색을 골라요.')}
     <div class="section-title"><span>스킨</span></div><div class="section"><div class="tiles skins" id="skin-tiles"></div></div>
     <div id="skin-opts"></div>
     <div class="section-title"><span>포인트 색</span></div><div class="section"><div class="accents" id="accents"></div></div>
     ${UI.sec('모양', UI.slider('모서리 둥글기', 'text.radius', 0, 32, 1, 'px'))}
-    ${UI.sec('저장 화질', UI.seg('배율', 'scale', [['1', '1×'], ['2', '2×'], ['3', '3×']], true), '2×면 16:9 기준 3200 × 1800px로 저장돼요.')}` },
+    ${UI.sec('저장 화질', UI.seg('배율', 'scale', [['1', '1×'], ['2', '2×'], ['3', '3×']], true), '2×면 3:2 기준 3200 × 2133px로 저장돼요.')}` },
 ];
 
 const panelScroll = $('#panel-scroll'), rail = $('#rail'), app = $('#app');
@@ -476,7 +491,7 @@ function renderGallery() {
         <div class="ghead"><span class="gnum">${j + 1}</span>${moveBtns('gallery.items', j, n)}</div>
         <input class="input sm" type="text" data-k="gallery.items.${j}.genre" placeholder="장르">
         <input class="input sm" type="text" data-k="gallery.items.${j}.name" placeholder="캐릭터 이름">
-        <input class="input sm" type="text" data-k="gallery.items.${j}.credit" placeholder="커미션 출처 (선택) 예: cm. @artist">
+        <input class="input sm" type="text" data-k="gallery.items.${j}.credit" placeholder="커미션 출처 (선택)">
         ${u ? `<div class="gpos"><span>가로</span><input type="range" class="slider" min="0" max="100" data-k="gallery.items.${j}.x" aria-label="가로 위치"><span>세로</span><input type="range" class="slider" min="0" max="100" data-k="gallery.items.${j}.y" aria-label="세로 위치"></div>` : ''}
       </div></div>`;
   }).join('') + (n < 6 ? `<button type="button" class="add-row" data-act="g-add">${icon('plus')}캐릭터 추가</button><button type="button" class="add-row" data-act="g-multi">${icon('image')}사진 여러 장 한 번에 넣기</button>` : '');
@@ -667,6 +682,45 @@ panel.addEventListener('click', (e) => {
   if (w > 0 && h > 0 && w / h <= 4 && h / w <= 4) { state.layout.w = w; state.layout.h = h; schedule(); }
 }));
 
+/* ---------- 글 서식 도구: 글 칸을 누르면 위에 뜸 ---------- */
+const fmtBar = $('#fmtbar');
+let fmtEl = null;
+const isTextField = (el) => el && el.closest && el.closest('#panel') && el.tagName === 'TEXTAREA';
+function placeFmt() {
+  if (!fmtEl) return;
+  const r = fmtEl.getBoundingClientRect(), pr = panel.getBoundingClientRect();
+  if (r.bottom < pr.top + 10 || r.top > pr.bottom - 10) { fmtBar.hidden = true; return; }
+  fmtBar.hidden = false;
+  const bw = fmtBar.offsetWidth, bh = fmtBar.offsetHeight;
+  let top = r.top - bh - 6;
+  if (top < pr.top + 4) top = r.bottom + 6;
+  fmtBar.style.top = Math.round(top) + 'px';
+  fmtBar.style.left = Math.round(Math.max(8, Math.min(r.right - bw, innerWidth - bw - 8))) + 'px';
+}
+document.addEventListener('focusin', (e) => { if (isTextField(e.target)) { fmtEl = e.target; placeFmt(); } });
+document.addEventListener('focusout', () => setTimeout(() => { if (!isTextField(document.activeElement)) { fmtEl = null; fmtBar.hidden = true; } }, 0));
+panelScroll.addEventListener('scroll', placeFmt, { passive: true });
+addEventListener('resize', placeFmt);
+function wrapSel(el, mk) {
+  const v = el.value, n = mk.length;
+  let a = el.selectionStart, b = el.selectionEnd;
+  while (a < b && /\s/.test(v[a])) a++; // 같이 잡힌 앞뒤 공백은 빼고 감쌈
+  while (b > a && /\s/.test(v[b - 1])) b--;
+  if (v.slice(a - n, a) === mk && v.slice(b, b + n) === mk) {
+    el.value = v.slice(0, a - n) + v.slice(a, b) + v.slice(b + n);
+    el.setSelectionRange(a - n, b - n);
+  } else if (b - a > n * 2 - 1 && v.slice(a, a + n) === mk && v.slice(b - n, b) === mk) {
+    el.value = v.slice(0, a) + v.slice(a + n, b - n) + v.slice(b);
+    el.setSelectionRange(a, b - n * 2);
+  } else {
+    el.value = v.slice(0, a) + mk + v.slice(a, b) + mk + v.slice(b);
+    el.setSelectionRange(a + n, b + n);
+  }
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+}
+fmtBar.addEventListener('mousedown', (e) => e.preventDefault());
+fmtBar.addEventListener('click', (e) => { const b = e.target.closest('[data-fmt]'); if (b && fmtEl) wrapSel(fmtEl, b.dataset.fmt); });
+
 /* =========================================================
    이미지 넣기: 고르기 · 끌어다 놓기 · 붙여넣기
    ========================================================= */
@@ -810,7 +864,7 @@ async function renderBlob() {
 function fileBase() {
   const d = new Date();
   const date = `${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-  const title = (state.profile.name.trim() || state.profile.handle.replace(/^@/, '').trim() || '메인트').replace(/[\\/:*?"<>|\n\r\t]+/g, ' ').trim().slice(0, 40);
+  const title = (plain(state.profile.name).trim() || state.profile.handle.replace(/^@/, '').trim() || '메인트').replace(/[\\/:*?"<>|\n\r\t]+/g, ' ').trim().slice(0, 40);
   return `[메인트닝]${title}_${date}`;
 }
 function download(blob, name) {
@@ -856,6 +910,9 @@ $('#btn-copy').addEventListener('click', copyImage);
 document.addEventListener('keydown', (e) => {
   const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
   if (mod && k === 's') { e.preventDefault(); saveImage(); }
+  if (mod && isTextField(e.target) && (k === 'b' || k === 'i' || (k === 'h' && e.shiftKey))) {
+    e.preventDefault(); wrapSel(e.target, k === 'b' ? '**' : k === 'i' ? '*' : '=='); return;
+  }
   if (mod && (k === 'z' || k === 'y') && !(e.target.closest && e.target.closest('input, textarea, select'))) {
     e.preventDefault(); if (k === 'y' || e.shiftKey) redo(); else undo(); return;
   }

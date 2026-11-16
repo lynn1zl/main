@@ -727,15 +727,20 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 #card .hd { font-size: .74em; color: var(--c-sub); font-weight: 500; letter-spacing: 0; }
 #card .sm { font-size: .76em; color: var(--c-ink2); margin-top: .3em; line-height: 1.45; }
 
-#card .bento { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--gap) * .55); align-content: stretch; }
-#card .blk { background: var(--c-panel); border-radius: var(--rad); padding: .85em 1em; min-width: 0; display: flex; flex-direction: column; gap: .45em; text-align: var(--align); }
-#card .blk.wide { grid-column: 1 / -1; }
-#card .lbl { font-family: var(--fH); font-weight: 600; line-height: 1.25; font-size: .6em; color: var(--c-sub); letter-spacing: .02em; }
+/* 소개: 상자 대신 가는 선으로 나눈 목록. 프로필은 위, 목록은 아래에 붙여 여백을 한 곳에 모음 */
+#card .list { margin-top: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: calc(var(--gap) * 1.1); }
+#card .sec { min-width: 0; padding: .78em 0 .9em; border-top: 1px solid var(--c-line); display: flex; flex-direction: column; gap: .5em; text-align: var(--align); }
+#card .sec.wide { grid-column: 1 / -1; }
+#card .sec.l { grid-column: 1; }
+#card .sec.r { grid-column: 2; }
+#card .lbl { font-family: var(--fH); font-weight: 600; line-height: 1.25; font-size: .58em; color: var(--c-sub); letter-spacing: .02em; }
 #card.ts-accent .lbl { color: var(--accent-text); font-weight: 700; }
-#card.ts-line .lbl { display: flex; align-items: center; gap: .7em; }
-#card.ts-line .lbl::after { content: ""; flex: 1; height: 1px; background: var(--c-line); }
-#card.ts-line.al-center .lbl::before { content: ""; flex: 1; height: 1px; background: var(--c-line); }
+#card.ts-bold .lbl { color: var(--c-ink); font-weight: 700; font-size: .66em; letter-spacing: -0.01em; }
 #card .txt { font-size: .8em; white-space: pre-wrap; word-break: var(--wb); overflow-wrap: anywhere; }
+#card b { font-weight: 700; }
+#card i { font-style: italic; }
+#card mark { background: var(--hl); color: inherit; padding: 0 .12em; border-radius: .15em; }
+#card .info.boxed, #card .gal.boxed { background: var(--c-panel); border-radius: var(--rad); padding: 1.1em 1.25em; }
 #card .tags { display: flex; flex-wrap: wrap; gap: .35em; justify-content: var(--justify); }
 #card .tag { font-size: .66em; font-weight: 600; line-height: 1.4; padding: .28em .78em; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); white-space: nowrap; }
 #card .tag.off { background: transparent; color: var(--c-sub); box-shadow: inset 0 0 0 1px var(--c-line); font-weight: 500; }
@@ -775,14 +780,19 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 #card .titlebar .tt { position: absolute; left: 0; right: 0; text-align: center; font-size: 15px; font-weight: 600; color: var(--c-sub); font-family: var(--ui-font); letter-spacing: 0; }
 
 /* 그리드: 카드 대신 가는 선으로 나눈 격자 */
-#card.sk-grid .bento { gap: 0; border-top: 1px solid var(--c-rule); border-left: 1px solid var(--c-rule); }
-#card.sk-grid .blk { border-radius: 0; border-right: 1px solid var(--c-rule); border-bottom: 1px solid var(--c-rule); }
+#card.sk-grid .sec { border-top-color: var(--c-rule); }
+#card.sk-grid .list { border-bottom: 1px solid var(--c-rule); }
 #card.sk-grid .grid { gap: 0; border-top: 1px solid var(--c-rule); border-left: 1px solid var(--c-rule); }
 #card.sk-grid .gi { border-radius: 0; border-right: 1px solid var(--c-rule); border-bottom: 1px solid var(--c-rule); padding: .4em; background: var(--c-panel); }
 #card.sk-grid .gi .im, #card.sk-grid .cap-below .gi .im { border-radius: 0; }
 #card.sk-grid .cap-over .cap { left: .4em; right: .4em; bottom: .4em; }
-#card.sk-grid .prof { padding-bottom: var(--gap); border-bottom: 1px solid var(--c-rule); }
 #card.sk-grid .ph { border-radius: 0; box-shadow: 0 0 0 1px var(--c-rule); }
+/* 서식 도구 */
+.fmtbar { position: fixed; z-index: 90; display: flex; gap: 2px; padding: 3px; background: var(--surface); border-radius: 11px; box-shadow: var(--shadow-pop); }
+.fmtbar[hidden] { display: none; }
+.fmtbar button { width: 32px; height: 30px; border: 0; border-radius: 8px; background: none; color: var(--text); font: 600 15px/1 Georgia, 'Times New Roman', serif; }
+.fmtbar button:hover { background: var(--fill); }
+.fmtbar mark { background: #ffe066; color: #191f28; padding: 0 3px; border-radius: 2px; font-family: var(--ui-font); font-size: 13px; }
 #card .cm { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; }
 #card .cm::before, #card .cm::after { content: ""; position: absolute; background: var(--c-rule); }
 #card .cm::before { left: 0; right: 0; top: 8.5px; height: 1px; }
