@@ -365,7 +365,7 @@ function render() {
   const d0 = new Date(), today = `${d0.getFullYear()}. ${String(d0.getMonth() + 1).padStart(2, '0')}. ${String(d0.getDate()).padStart(2, '0')}`;
   const mast = state.skin.type === 'editorial' ? `<div class="mast"><span>PROFILE</span><span>${handle ? '@' + esc(handle) : ''}</span><span>${today}</span></div>` : '';
   const info = `<div class="info${boxed ? ' boxed' : ''}">${mast}
-    <div class="prof" data-go="about" data-drop="photo">${p.showPhoto ? `<div class="ph"${photo ? ' data-img="photo"' : ''} style="${phStyle(p)}">${photo ? picHTML(photo, p.px, p.py, p.pz) : `<span class="ph-hint">${PERSON}</span>`}</div>` : ''}
+    <div class="prof" data-go="about" data-drop="photo">${p.showPhoto ? `<div class="ph"${photo ? ' data-img="photo"' : ' data-pick="photo"'} style="${phStyle(p)}">${photo ? picHTML(photo, p.px, p.py, p.pz) : `<span class="ph-hint">${PERSON}</span>`}</div>` : ''}
       <div class="who"><div class="id">${p.name.trim() ? `<div class="nm">${esc(p.name)}</div>` : `<div class="nm">${hint('닉네임')}</div>`}${p.showHandle && handle ? `<div class="hd">@${esc(handle)}</div>` : ''}</div>${p.showSummary && p.summary.trim() ? `<div class="sm">${rich(p.summary)}</div>` : ''}</div></div>
     <div class="list">${listHTML()}</div></div>`;
 
@@ -376,7 +376,7 @@ function render() {
     const cap = hasCap ? `<div class="cap"><div class="ct">${it.genre.trim() ? `<div class="g">${esc(it.genre)}</div>` : ''}${it.name.trim() ? `<div class="n">${esc(it.name)}</div>` : ''}</div>${credInCap ? `<span class="cr">${credit}</span>` : ''}</div>` : '';
     const pill = credit && !credInCap ? `<span class="cr pill">${credit}</span>` : '';
     const u = imgURL(it.img);
-    const im = u ? `<div class="im" data-img="g${j}">${picHTML(u, it.x, it.y, it.z)}${pill}</div>` : `<div class="empty"><span class="ph-hint">${PIC}</span></div>`;
+    const im = u ? `<div class="im" data-img="g${j}">${picHTML(u, it.x, it.y, it.z)}${pill}</div>` : `<div class="empty" data-pick="g${j}"><span class="ph-hint">${PIC}</span></div>`;
     return `<div class="gi" data-drop="g${j}">${im}${cap}</div>`;
   }).join('')}</div></div>`;
 
@@ -493,7 +493,7 @@ const PANES = [
     <p class="footnote">‘반’ 너비 메뉴 두 개가 이어지면 나란히 놓여요.</p>
     ${UI.sec('갤러리', UI.sw('갤러리 보이기', 'gallery.on') + UI.text('제목', 'gallery.title', '비우면 제목 없이') + UI.seg('위치', 'gallery.pos', [['auto', '자동'], ['left', '왼쪽'], ['right', '오른쪽'], ['bottom', '아래']]) + UI.slider('크기', 'gallery.share', 28, 64, 1, '%'), '자동은 가로형이면 오른쪽, 세로형 · 정사각형이면 아래예요.')}` },
   { id: 'about', icon: 'note', label: '소개', html: () => `${UI.head('소개')}
-    ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 고르기">${icon('person')}</button><div class="img-acts"><button type="button" class="chip" data-pick="photo"><span data-icon="image"></span>사진 고르기</button><button type="button" class="chip" data-act="img-link" data-target="photo"><span data-icon="link"></span>링크</button><button type="button" class="chip danger" data-act="photo-del" hidden>지우기</button></div></div>${UI.seg('모양', 'profile.pshape', [['circle', '원'], ['rounded', '둥근 사각'], ['square', '사각']])}${UI.seg('비율', 'profile.pratio', [['11', '1:1'], ['34', '3:4'], ['45', '4:5'], ['23', '2:3'], ['43', '4:3']])}${UI.slider('크기', 'profile.psize', 60, 220, 1, '%')}<div id="photo-adj" hidden>${UI.slider('확대', 'profile.pz', 1, 4, .01, '×')}${UI.slider('가로 위치', 'profile.px', 0, 100, 1, '%')}${UI.slider('세로 위치', 'profile.py', 0, 100, 1, '%')}</div>`, '끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌거나 휠을 굴려도 맞출 수 있어요. ‘원’은 1:1일 때만 동그랗고, 다른 비율에서는 둥근 사각이 돼요.')}
+    ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 넣기">${icon('person')}</button><div class="img-txt"><b id="photo-state">사진 넣기</b><small>눌러서 파일이나 링크로 넣어요</small></div></div>${UI.seg('모양', 'profile.pshape', [['circle', '원'], ['rounded', '둥근 사각'], ['square', '사각']])}${UI.seg('비율', 'profile.pratio', [['11', '1:1'], ['34', '3:4'], ['45', '4:5'], ['23', '2:3'], ['43', '4:3']])}${UI.slider('크기', 'profile.psize', 60, 220, 1, '%')}<div id="photo-adj" hidden>${UI.slider('확대', 'profile.pz', 1, 4, .01, '×')}${UI.slider('가로 위치', 'profile.px', 0, 100, 1, '%')}${UI.slider('세로 위치', 'profile.py', 0, 100, 1, '%')}</div>`, '사진을 끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌거나 휠을 굴려도 맞출 수 있어요. ‘원’은 1:1일 때만 동그랗고, 다른 비율에서는 둥근 사각이 돼요.')}
     ${UI.sec('정보', UI.text('닉네임', 'profile.name', '닉네임') + `<div class="row stack"><span class="row-label">아이디</span><input class="input" type="text" data-k="profile.handle" placeholder="아이디" autocapitalize="off" spellcheck="false"></div>` + UI.area('계정 요약', 'profile.summary', 2, '계정을 한두 줄로 소개해 주세요'))}
     ${UI.sec('보이기', UI.sw('프로필 사진', 'profile.showPhoto', '끄면 카드에서 사진 칸이 빠져요') + UI.sw('아이디', 'profile.showHandle') + UI.sw('계정 요약', 'profile.showSummary'))}
     <div id="about-list"></div><p class="footnote">글 칸을 누르면 뜨는 도구로 <b>굵게</b> · <i>기울임</i> · <u>밑줄</u> · 형광펜 · 글자 색을 넣을 수 있어요. 단축키 Ctrl/⌘ + B · I · U · Shift + H</p>` },
@@ -538,6 +538,8 @@ rail.addEventListener('click', (e) => { const b = e.target.closest('.rail-item')
 $('#sheet-handle').addEventListener('click', () => { app.classList.remove('sheet-open'); setTimeout(fit, 340); });
 card.addEventListener('click', (e) => {
   if (dragged) { dragged = false; return; }
+  const im = e.target.closest('[data-img], [data-pick]');
+  if (im) { openPickMenu(im.dataset.img || im.dataset.pick, im); return; }
   const go = e.target.closest('[data-go]'); if (go) setPane(go.dataset.go, true);
 });
 
@@ -600,15 +602,15 @@ function renderGallery() {
   $('#g-list').innerHTML = items.map((it, j) => {
     const u = imgURL(it.img);
     return `<div class="gitem" data-drop-row="g${j}">
-      <button type="button" class="gthumb" data-pick="g${j}" style="${u ? `background-image:url(&quot;${u}&quot;);background-position:${it.x}% ${it.y}%` : ''}" aria-label="${j + 1}번 이미지 고르기">${u ? '' : icon('image')}</button>
+      <button type="button" class="gthumb" data-pick="g${j}" style="${u ? `background-image:url(&quot;${u}&quot;);background-position:${it.x}% ${it.y}%` : ''}" aria-label="${j + 1}번 이미지 넣기">${u ? '' : icon('image')}</button>
       <div class="gfields">
-        <div class="ghead"><span class="gnum">${j + 1}</span><div class="lbtns"><button type="button" class="icon-btn sm" data-act="img-link" data-target="g${j}" aria-label="링크로 이미지 넣기" title="링크로 이미지 넣기">${icon('link')}</button>${moveBtns('gallery.items', j, n)}</div></div>
+        <div class="ghead"><span class="gnum">${j + 1}</span>${moveBtns('gallery.items', j, n)}</div>
         <input class="input sm" type="text" data-k="gallery.items.${j}.genre" placeholder="장르">
         <input class="input sm" type="text" data-k="gallery.items.${j}.name" placeholder="캐릭터 이름">
         <input class="input sm" type="text" data-k="gallery.items.${j}.credit" placeholder="커미션 출처 (선택)">
         ${u ? `<div class="gpos"><span>확대</span><input type="range" class="slider" min="1" max="4" step="0.01" data-k="gallery.items.${j}.z" aria-label="확대"><span>가로</span><input type="range" class="slider" min="0" max="100" data-k="gallery.items.${j}.x" aria-label="가로 위치"><span>세로</span><input type="range" class="slider" min="0" max="100" data-k="gallery.items.${j}.y" aria-label="세로 위치"></div>` : ''}
       </div></div>`;
-  }).join('') + (n < 6 ? `<button type="button" class="add-row" data-act="g-add">${icon('plus')}캐릭터 추가</button><button type="button" class="add-row" data-act="g-multi">${icon('image')}사진 여러 장 한 번에 넣기</button><button type="button" class="add-row" data-act="img-link" data-target="g-new">${icon('link')}링크로 넣기</button>` : '');
+  }).join('') + (n < 6 ? `<button type="button" class="add-row" data-act="g-add">${icon('plus')}캐릭터 추가</button>` : '');
   syncIn($('#g-list'));
 }
 function renderMenuList() {
@@ -661,7 +663,7 @@ function renderSkin() {
   else if (sk.type === 'film') o = `<p class="footnote" style="padding-top:12px">필름 한 컷처럼 위아래에 구멍과 번호가 들어가요.</p>`;
   else if (sk.type === 'grid') o = UI.sec('그리드', UI.seg('톤', 'skin.gt', Object.entries(GT).map(([k, [n]]) => [k, n])), '가는 선으로 칸을 나눈 격자예요. 모서리에 재단 표시가 들어가요.');
   else if (sk.type === 'pattern') o = `<div class="section-title"><span>무늬</span></div><div class="section"><div class="tiles pats">${PATTERNS.map(([p, n]) => `<button type="button" class="tile${sk.pattern === p ? ' on' : ''}" data-act="pattern" data-p="${p}"><span class="pat-pv" style="background:${svgURI(patternSVG(p, sk.patFg, 16))} 0 0/16px 16px, ${sk.patBg}"></span><span>${n}</span></button>`).join('')}</div>${UI.color('바탕 색', 'skin.patBg')}${UI.color('무늬 색', 'skin.patFg')}${UI.slider('무늬 크기', 'skin.patSize', 16, 96, 2, 'px')}</div>`;
-  else if (sk.type === 'photo') o = UI.sec('사진 배경', `<div class="row img-row"><button type="button" class="thumb" data-pick="bg" aria-label="배경 사진 고르기" style="${imgURL(sk.image) ? `background-image:url(&quot;${imgURL(sk.image)}&quot;)` : ''}">${imgURL(sk.image) ? '' : icon('image')}</button><div class="img-acts"><button type="button" class="chip" data-pick="bg"><span data-icon="image"></span>${sk.image ? '바꾸기' : '사진 고르기'}</button><button type="button" class="chip" data-act="img-link" data-target="bg"><span data-icon="link"></span>링크</button>${sk.image ? '<button type="button" class="chip danger" data-act="bg-del">지우기</button>' : ''}</div></div>` + UI.seg('채우기', 'skin.imgFit', [['cover', '꽉 채우기'], ['tile', '바둑판']]) + UI.seg('덮개', 'skin.dimTone', [['dark', '어둡게'], ['light', '밝게']]) + UI.slider('덮개 농도', 'skin.dim', 0, 80, 1, '%'));
+  else if (sk.type === 'photo') o = UI.sec('사진 배경', `<div class="row img-row"><button type="button" class="thumb" data-pick="bg" aria-label="배경 사진 고르기" style="${imgURL(sk.image) ? `background-image:url(&quot;${imgURL(sk.image)}&quot;)` : ''}">${imgURL(sk.image) ? '' : icon('image')}</button><div class="img-txt"><b>${sk.image ? '배경 사진' : '사진 넣기'}</b><small>눌러서 ${sk.image ? '바꾸거나 지워요' : '파일이나 링크로 넣어요'}</small></div></div>` + UI.seg('채우기', 'skin.imgFit', [['cover', '꽉 채우기'], ['tile', '바둑판']]) + UI.seg('덮개', 'skin.dimTone', [['dark', '어둡게'], ['light', '밝게']]) + UI.slider('덮개 농도', 'skin.dim', 0, 80, 1, '%'));
   if (sk.type === 'pattern' || sk.type === 'photo') o += UI.sec('칸', UI.seg('칸 색', 'skin.panelTone', [['light', '라이트'], ['dark', '다크']]) + UI.slider('불투명도', 'skin.panelAlpha', 40, 100, 1, '%'));
   $('#skin-opts').innerHTML = o;
   $('#accents').innerHTML = ACCENTS.map((c) => `<button type="button" class="accent-dot${sk.accent.toLowerCase() === c ? ' on' : ''}" style="--c:${c}" data-act="accent" data-c="${c}" aria-label="${c}"></button>`).join('') +
@@ -671,8 +673,9 @@ function renderSkin() {
 function renderPhotoRow() {
   const u = imgURL(state.profile.photo), th = $('[data-drop-row="photo"] .thumb');
   th.style.backgroundImage = u ? `url("${u}")` : ''; th.innerHTML = u ? '' : icon('person');
-  $('[data-act="photo-del"]').hidden = !u;
   $('#photo-adj').hidden = !u;
+  $('#photo-state').textContent = u ? '프로필 사진' : '사진 넣기';
+  $('#photo-state').nextElementSibling.textContent = u ? '눌러서 바꾸거나 지워요' : '눌러서 파일이나 링크로 넣어요';
 }
 
 /* ---------- 값 ↔ 입력 칸 ---------- */
@@ -769,7 +772,7 @@ panel.addEventListener('click', (e) => {
     schedule(); return;
   }
   const pick = e.target.closest('[data-pick]');
-  if (pick) { pickImage(pick.dataset.pick); return; }
+  if (pick) { openPickMenu(pick.dataset.pick, pick); return; }
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act, i = +b.dataset.i, j = +b.dataset.j;
   if (a === 'tag-del') { e.stopPropagation(); state.sections[i].tags.splice(j, 1); renderAbout(); }
@@ -784,7 +787,6 @@ panel.addEventListener('click', (e) => {
   }
   else if (a === 'img-link') { imageFromLink(b.dataset.target); return; }
   else if (a === 'g-add') { state.gallery.items.push(blankItem()); renderGallery(); }
-  else if (a === 'g-multi') { $('#file-multi').value = ''; $('#file-multi').click(); return; }
   else if (a === 'sec-add') {
     const type = b.dataset.type;
     state.sections.push(type === 'tags' ? { id: uid(), type, title: '새 태그 메뉴', on: true, wide: true, custom: true, showAll: false, tags: [] } : { id: uid(), type, title: '새 메뉴', on: true, wide: true, custom: true, body: '' });
@@ -889,9 +891,42 @@ $('#fmt-custom').addEventListener('change', (e) => {
    ========================================================= */
 const fileImg = $('#file-img');
 let pickTarget = '';
-function pickImage(target) { pickTarget = target; fileImg.value = ''; fileImg.click(); }
-fileImg.addEventListener('change', () => { const f = fileImg.files[0]; if (f) putImages(pickTarget, [f]); });
-$('#file-multi').addEventListener('change', (e) => { const fs = [...e.target.files]; if (fs.length) putImages('g-new', fs); });
+function pickImage(target) { pickTarget = target; fileImg.multiple = target.startsWith('g'); fileImg.value = ''; fileImg.click(); }
+fileImg.addEventListener('change', () => { const fs = [...fileImg.files]; if (fs.length) putImages(pickTarget, fs); });
+
+/* 사진 칸을 누르면: 파일에서 고르기 · 링크로 넣기 · 지우기 */
+const pickMenu = $('#pickmenu');
+let pickMenuTarget = '';
+const hasImage = (t) => (t === 'photo' ? !!state.profile.photo : t === 'bg' ? !!state.skin.image : !!(state.gallery.items[+t.slice(1)] || {}).img);
+function openPickMenu(target, anchor) {
+  pickMenuTarget = target;
+  const has = hasImage(target);
+  pickMenu.innerHTML = `<button type="button" data-pm="file">${icon('image')}<span>${has ? '다른 파일로 바꾸기' : '파일에서 고르기'}${target.startsWith('g') ? '<small>여러 장을 고르면 다음 칸에 차례로 들어가요</small>' : ''}</span></button>
+    <button type="button" data-pm="link">${icon('link')}<span>링크로 넣기</span></button>
+    ${has ? `<div class="menu-sep"></div><button type="button" data-pm="del" class="danger">${icon('trash')}<span>사진 지우기</span></button>` : ''}`;
+  pickMenu.hidden = false;
+  const r = anchor.getBoundingClientRect(), mw = pickMenu.offsetWidth, mh = pickMenu.offsetHeight;
+  let left = r.left, top = r.bottom + 8;
+  if (top + mh > innerHeight - 8) top = Math.max(8, r.top - mh - 8);
+  left = Math.max(8, Math.min(left, innerWidth - mw - 8));
+  pickMenu.style.left = Math.round(left) + 'px'; pickMenu.style.top = Math.round(top) + 'px';
+  pickMenu.querySelector('button').focus();
+}
+function closePickMenu() { pickMenu.hidden = true; }
+pickMenu.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-pm]'); if (!b) return;
+  const t = pickMenuTarget; closePickMenu();
+  if (b.dataset.pm === 'file') pickImage(t);
+  else if (b.dataset.pm === 'link') imageFromLink(t);
+  else {
+    if (t === 'photo') { state.profile.photo = null; renderPhotoRow(); }
+    else if (t === 'bg') { state.skin.image = null; renderSkin(); }
+    else { state.gallery.items[+t.slice(1)].img = null; renderGallery(); }
+    schedule();
+  }
+});
+document.addEventListener('pointerdown', (e) => { if (!pickMenu.hidden && !e.target.closest('#pickmenu')) closePickMenu(); }, true);
+panelScroll.addEventListener('scroll', closePickMenu, { passive: true });
 async function putImages(target, files) {
   files = files.filter((f) => f.type.startsWith('image/'));
   if (!files.length) return;
@@ -902,8 +937,10 @@ async function putImages(target, files) {
       const items = state.gallery.items;
       let j = target === 'g-new' ? items.findIndex((it) => !it.img) : +target.slice(1);
       if (j < 0) j = items.length;
+      let first = target !== 'g-new';
       for (const f of files) {
-        while (j < items.length && items[j].img && target === 'g-new') j++;
+        if (!first) while (j < items.length && items[j].img) j++;
+        first = false;
         if (j >= 6) { toast('캐릭터는 6개까지 넣을 수 있어요'); break; }
         if (!items[j]) items.push(blankItem());
         items[j].img = await addImage(f);
@@ -1118,7 +1155,7 @@ document.addEventListener('keydown', (e) => {
   if (mod && (k === 'z' || k === 'y') && !(e.target.closest && e.target.closest('input, textarea, select'))) {
     e.preventDefault(); if (k === 'y' || e.shiftKey) redo(); else undo(); return;
   }
-  if (e.key === 'Escape') { closeMenu(); if (isMobile()) app.classList.remove('sheet-open'); }
+  if (e.key === 'Escape') { closeMenu(); closePickMenu(); if (isMobile()) app.classList.remove('sheet-open'); }
 });
 
 /* =========================================================

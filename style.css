@@ -613,6 +613,16 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 .chip.danger:hover { color: var(--danger); }
 .modal-box.narrow { width: min(420px, 100%); }
 .modal-input { width: 100%; margin-top: 14px; }
+/* 사진 칸 메뉴 */
+.pickmenu { position: fixed; right: auto; min-width: 230px; z-index: 95; }
+.pickmenu > button { display: flex; align-items: flex-start; gap: 10px; }
+.pickmenu > button svg { width: 18px; height: 18px; flex: none; margin-top: 1px; color: var(--text-3); }
+.pickmenu > button.danger svg { color: var(--danger); }
+.pickmenu small { display: block; font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.thumb, .gthumb { cursor: pointer; transition: box-shadow .15s, transform .12s var(--ease); }
+.thumb:hover, .gthumb:hover { box-shadow: inset 0 0 0 2px var(--accent); }
+.thumb:active, .gthumb:active { transform: scale(.96); }
+#card .empty[data-pick], #card .ph[data-pick] { cursor: pointer; }
 .gfields .ghead .lbtns { display: flex; }
 @media (max-width: 900px) { .hist .icon-btn { width: 34px; height: 34px; } }
 
