@@ -43,11 +43,21 @@ const FONT_PARAM = {};
 FONTS.forEach(([, l]) => l.forEach(([f, p]) => { FONT_PARAM[f] = p; }));
 
 const SKINS = [['white', '화이트'], ['cloud', '클라우드'], ['dark', '다크'], ['mac', 'macOS'], ['glass', '글래스'], ['editorial', '에디토리얼'], ['block', '컬러 블록'], ['grid', '그리드'], ['note', '노트'], ['film', '필름'], ['pattern', '패턴'], ['photo', '사진 배경']];
+const mesh = (a, b, c, d, base) => `radial-gradient(45% 60% at 12% 18%, ${a} 0%, transparent 70%), radial-gradient(42% 58% at 88% 14%, ${b} 0%, transparent 70%), radial-gradient(55% 65% at 74% 94%, ${c} 0%, transparent 70%), radial-gradient(45% 55% at 18% 96%, ${d} 0%, transparent 70%), ${base}`;
+// [이름, 배경, 어두운 배경인지]
 const GLASS = {
-  aurora: ['오로라', 'radial-gradient(45% 60% at 12% 18%, #a9c8ff 0%, rgba(169,200,255,0) 70%), radial-gradient(40% 55% at 88% 12%, #ffc7e4 0%, rgba(255,199,228,0) 70%), radial-gradient(55% 65% at 75% 92%, #c7b8ff 0%, rgba(199,184,255,0) 70%), radial-gradient(45% 55% at 20% 95%, #b5f0e3 0%, rgba(181,240,227,0) 70%), #eef1fb'],
-  mint: ['민트', 'radial-gradient(45% 60% at 15% 15%, #b8f2e6 0%, rgba(184,242,230,0) 70%), radial-gradient(45% 60% at 90% 20%, #aed9e0 0%, rgba(174,217,224,0) 70%), radial-gradient(55% 65% at 70% 95%, #ffe3b8 0%, rgba(255,227,184,0) 70%), #eef7f5'],
-  peach: ['피치', 'radial-gradient(45% 60% at 12% 20%, #ffd0b5 0%, rgba(255,208,181,0) 70%), radial-gradient(45% 60% at 88% 15%, #ffb8c9 0%, rgba(255,184,201,0) 70%), radial-gradient(55% 65% at 70% 95%, #d9c4f0 0%, rgba(217,196,240,0) 70%), #fbf1f0'],
-  night: ['밤', 'radial-gradient(45% 60% at 15% 20%, #2b3a8c 0%, rgba(43,58,140,0) 70%), radial-gradient(45% 60% at 88% 15%, #6a2c7a 0%, rgba(106,44,122,0) 70%), radial-gradient(55% 65% at 70% 95%, #134e6f 0%, rgba(19,78,111,0) 70%), #0d1020'],
+  aurora: ['오로라', mesh('#a9c8ff', '#ffc7e4', '#c7b8ff', '#b5f0e3', '#eef1fb')],
+  mint: ['민트', mesh('#b8f2e6', '#aed9e0', '#ffe3b8', '#d3f5c8', '#eef7f5')],
+  peach: ['피치', mesh('#ffd0b5', '#ffb8c9', '#d9c4f0', '#ffe6c7', '#fbf1f0')],
+  lavender: ['라벤더', mesh('#d6c8ff', '#f3c9f0', '#b9c6ff', '#efe3ff', '#f4f1fd')],
+  lemon: ['레몬', mesh('#fff1a6', '#c9f2c7', '#ffd6a5', '#fff8d6', '#fbfaee')],
+  ocean: ['오션', mesh('#9fd8ff', '#9ee6e0', '#7fa8ff', '#c9ecff', '#eef6fb')],
+  cherry: ['체리', mesh('#ffb3c6', '#ffd1dc', '#ff9eb5', '#ffe0e9', '#fdf0f3')],
+  sunset: ['노을', mesh('#ffb88c', '#ff9ec4', '#c79bff', '#ffd59e', '#fbefee')],
+  mono: ['모노', mesh('#e3e6ea', '#f5f6f8', '#d4d8de', '#eceef1', '#f2f4f6')],
+  night: ['밤', mesh('#2b3a8c', '#6a2c7a', '#134e6f', '#1f2a5c', '#0d1020'), true],
+  forest: ['숲', mesh('#1f5e4a', '#2f4f7a', '#3d6b3a', '#173c3a', '#0c1614'), true],
+  wine: ['와인', mesh('#7a2346', '#4a2370', '#8a3a2a', '#3a1530', '#140a12'), true],
 };
 const WALLS = {
   mist: ['안개', 'radial-gradient(60% 80% at 18% 18%, #e8f3ff 0%, rgba(232,243,255,0) 70%), radial-gradient(70% 80% at 85% 85%, #c9d8f2 0%, rgba(201,216,242,0) 70%), linear-gradient(150deg,#eef2f8,#c3d0e6)'],
@@ -68,7 +78,7 @@ const blankItem = () => ({ img: null, genre: '', name: '', credit: '', x: 50, y:
 function defaults() {
   return {
     v: 1,
-    profile: { photo: null, px: 50, py: 50, pz: 1, name: '', handle: '', summary: '', showHandle: true, showSummary: true },
+    profile: { photo: null, px: 50, py: 50, pz: 1, showPhoto: true, psize: 100, pratio: '11', pshape: 'circle', name: '', handle: '', summary: '', showHandle: true, showSummary: true },
     sections: [
       { id: 'intro', type: 'text', title: '자기소개', on: true, wide: true, body: '' },
       { id: 'tweet', type: 'tags', title: '트윗 성향', on: true, wide: true, showAll: false, tags: TWEET_TAGS.map((l) => ({ label: l, on: false })) },
@@ -77,7 +87,7 @@ function defaults() {
     ],
     gallery: { on: true, title: '', pos: 'auto', share: 46, caption: 'over', items: [blankItem(), blankItem()] },
     text: { head: 'Pretendard', body: 'Pretendard', scale: 100, lh: 1.6, ls: 0, align: 'left', keepAll: true, titleStyle: 'plain', autofit: true, radius: 16 },
-    skin: { type: 'white', accent: '#3182f6', wall: 'mist', winTone: 'light', gt: 'light', glass: 'aurora', pattern: 'dots', patBg: '#e8f3ff', patFg: '#c4dcfc', patSize: 36, image: null, imgFit: 'cover', dimTone: 'dark', dim: 20, panelTone: 'light', panelAlpha: 92 },
+    skin: { type: 'white', accent: '#3182f6', wall: 'mist', winTone: 'light', gt: 'light', glass: 'aurora', glassColor: '#dbe7fb', pattern: 'dots', patBg: '#e8f3ff', patFg: '#c4dcfc', patSize: 36, image: null, imgFit: 'cover', dimTone: 'dark', dim: 20, panelTone: 'light', panelAlpha: 92 },
     layout: { ratio: '32', w: 3, h: 2 },
     scale: 2,
   };
@@ -209,6 +219,8 @@ function dims() {
   const r = state.layout.w / state.layout.h;
   return r >= 1 ? { W: BASE, H: Math.round(BASE / r) } : { W: Math.round(BASE * r), H: BASE };
 }
+function glassBG(key = state.skin.glass) { return key === 'solid' ? state.skin.glassColor : (GLASS[key] || GLASS.aurora)[1]; }
+function glassDark(key = state.skin.glass) { return key === 'solid' ? lum(state.skin.glassColor) < .3 : !!(GLASS[key] || GLASS.aurora)[2]; }
 function skinVars(W, H) {
   const sk = state.skin, acc = sk.accent;
   const v = { '--hl': rgba(acc, .22), '--accent': acc, '--c-on-accent': lum(acc) > .5 ? '#191f28' : '#ffffff', '--accent-soft': rgba(acc, .12), '--accent-text': acc, '--c-rule': 'rgba(0,0,0,.15)' };
@@ -224,10 +236,10 @@ function skinVars(W, H) {
       : { ...LIGHT, '--c-panel': '#f2f4f6', '--c-line': 'rgba(0,23,51,.09)', '--c-bar': '#f9fafb' });
     bg = (WALLS[sk.wall] || WALLS.mist)[1];
   } else if (sk.type === 'glass') {
-    const night = sk.glass === 'night';
+    const night = glassDark();
     Object.assign(v, night ? { ...DARK, '--c-panel': 'rgba(255,255,255,.08)', '--c-line': 'rgba(255,255,255,.14)', '--c-bg2': '#1a1f35', '--glass-edge': 'rgba(255,255,255,.16)' }
                            : { ...LIGHT, '--c-panel': 'rgba(255,255,255,.5)', '--c-line': 'rgba(25,31,40,.09)', '--c-bg2': '#ffffff', '--glass-edge': 'rgba(255,255,255,.85)' });
-    bg = (GLASS[sk.glass] || GLASS.aurora)[1];
+    bg = glassBG();
     cls = 'sk-glass';
   } else if (sk.type === 'editorial') {
     Object.assign(v, { ...LIGHT, '--c-bg': '#fafaf8', '--c-bg2': '#fafaf8', '--c-ink': '#111111', '--c-ink2': '#3b3b3b', '--c-sub': '#6e6e6e', '--c-panel': '#ecebe8', '--c-line': '#111111' });
@@ -311,6 +323,13 @@ function applyGrid(grid) {
   [...grid.children].forEach((c, i) => { c.style.gridArea = 'abcdef'[i]; });
 }
 
+const P_RATIO = { 11: [1, 1], 34: [3, 4], 45: [4, 5], 23: [2, 3], 43: [4, 3] };
+function phStyle(p) {
+  const [rw, rh] = P_RATIO[p.pratio] || [1, 1];
+  const w = 3.4 * (p.psize / 100) * (rw >= rh ? 1 : Math.sqrt(rw / rh)), h = w * rh / rw;
+  const r = p.pshape === 'circle' && rw === rh ? '50%' : p.pshape === 'square' ? '0' : (Math.min(w, h) * .22).toFixed(3) + 'em';
+  return `width:${w.toFixed(3)}em;height:${h.toFixed(3)}em;border-radius:${r}`;
+}
 function listHTML() {
   let col = 0;
   return state.sections.filter((s) => s.on).map((s) => {
@@ -345,7 +364,7 @@ function render() {
   const d0 = new Date(), today = `${d0.getFullYear()}. ${String(d0.getMonth() + 1).padStart(2, '0')}. ${String(d0.getDate()).padStart(2, '0')}`;
   const mast = state.skin.type === 'editorial' ? `<div class="mast"><span>PROFILE</span><span>${handle ? '@' + esc(handle) : ''}</span><span>${today}</span></div>` : '';
   const info = `<div class="info${boxed ? ' boxed' : ''}">${mast}
-    <div class="prof" data-go="about" data-drop="photo"><div class="ph"${photo ? ' data-img="photo"' : ''}>${photo ? picHTML(photo, p.px, p.py, p.pz) : `<span class="ph-hint">${PERSON}</span>`}</div>
+    <div class="prof" data-go="about" data-drop="photo">${p.showPhoto ? `<div class="ph"${photo ? ' data-img="photo"' : ''} style="${phStyle(p)}">${photo ? picHTML(photo, p.px, p.py, p.pz) : `<span class="ph-hint">${PERSON}</span>`}</div>` : ''}
       <div class="who">${p.name.trim() ? `<div class="nm">${esc(p.name)}</div>` : `<div class="nm">${hint('닉네임')}</div>`}${p.showHandle && handle ? `<div class="hd">@${esc(handle)}</div>` : ''}${p.showSummary && p.summary.trim() ? `<div class="sm">${rich(p.summary)}</div>` : ''}</div></div>
     <div class="list">${listHTML()}</div></div>`;
 
@@ -470,9 +489,9 @@ const PANES = [
     <p class="footnote">‘반’ 너비 메뉴 두 개가 이어지면 나란히 놓여요.</p>
     ${UI.sec('갤러리', UI.sw('갤러리 보이기', 'gallery.on') + UI.text('제목', 'gallery.title', '비우면 제목 없이') + UI.seg('위치', 'gallery.pos', [['auto', '자동'], ['left', '왼쪽'], ['right', '오른쪽'], ['bottom', '아래']]) + UI.slider('크기', 'gallery.share', 28, 64, 1, '%'), '자동은 가로형이면 오른쪽, 세로형 · 정사각형이면 아래예요.')}` },
   { id: 'about', icon: 'note', label: '소개', html: () => `${UI.head('소개')}
-    ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 고르기">${icon('person')}</button><div class="img-acts"><button type="button" class="chip" data-pick="photo"><span data-icon="image"></span>사진 고르기</button><button type="button" class="chip" data-act="img-link" data-target="photo"><span data-icon="link"></span>링크</button><button type="button" class="chip danger" data-act="photo-del" hidden>지우기</button></div></div><div id="photo-adj" hidden>${UI.slider('확대', 'profile.pz', 1, 4, .01, '×')}${UI.slider('가로 위치', 'profile.px', 0, 100, 1, '%')}${UI.slider('세로 위치', 'profile.py', 0, 100, 1, '%')}</div>`, '끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌거나 휠을 굴려도 맞출 수 있어요.')}
+    ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 고르기">${icon('person')}</button><div class="img-acts"><button type="button" class="chip" data-pick="photo"><span data-icon="image"></span>사진 고르기</button><button type="button" class="chip" data-act="img-link" data-target="photo"><span data-icon="link"></span>링크</button><button type="button" class="chip danger" data-act="photo-del" hidden>지우기</button></div></div>${UI.seg('모양', 'profile.pshape', [['circle', '원'], ['rounded', '둥근 사각'], ['square', '사각']])}${UI.seg('비율', 'profile.pratio', [['11', '1:1'], ['34', '3:4'], ['45', '4:5'], ['23', '2:3'], ['43', '4:3']])}${UI.slider('크기', 'profile.psize', 60, 220, 1, '%')}<div id="photo-adj" hidden>${UI.slider('확대', 'profile.pz', 1, 4, .01, '×')}${UI.slider('가로 위치', 'profile.px', 0, 100, 1, '%')}${UI.slider('세로 위치', 'profile.py', 0, 100, 1, '%')}</div>`, '끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌거나 휠을 굴려도 맞출 수 있어요. ‘원’은 1:1일 때만 동그랗고, 다른 비율에서는 둥근 사각이 돼요.')}
     ${UI.sec('정보', UI.text('닉네임', 'profile.name', '닉네임') + `<div class="row stack"><span class="row-label">아이디</span><input class="input" type="text" data-k="profile.handle" placeholder="아이디" autocapitalize="off" spellcheck="false"></div>` + UI.area('계정 요약', 'profile.summary', 2, '계정을 한두 줄로 소개해 주세요'))}
-    ${UI.sec('보이기', UI.sw('아이디', 'profile.showHandle') + UI.sw('계정 요약', 'profile.showSummary'))}
+    ${UI.sec('보이기', UI.sw('프로필 사진', 'profile.showPhoto', '끄면 카드에서 사진 칸이 빠져요') + UI.sw('아이디', 'profile.showHandle') + UI.sw('계정 요약', 'profile.showSummary'))}
     <div id="about-list"></div><p class="footnote">글 칸을 누르면 뜨는 도구로 <b>굵게</b> · <i>기울임</i> · <u>밑줄</u> · 형광펜 · 글자 색을 넣을 수 있어요. 단축키 Ctrl/⌘ + B · I · U · Shift + H</p>` },
   { id: 'chars', icon: 'image', label: '갤러리', html: () => `${UI.head('갤러리', '1개부터 6개까지, 개수에 맞춰 그리드가 알아서 배치돼요.')}
     <div class="section-title"><span id="g-count"></span></div><div class="section" id="g-list"></div>
@@ -617,7 +636,7 @@ function skinPV(id) {
     case 'mac': return `<span class="skin-pv" style="background:${(WALLS[sk.wall] || WALLS.mist)[1]}">${box(9, 16, 82, 72, '#fff', 4)}<i style="left:13%;top:21%;display:flex;gap:2px"><b style="width:4px;height:4px;border-radius:50%;background:#ff5f57"></b><b style="width:4px;height:4px;border-radius:50%;background:#febc2e"></b><b style="width:4px;height:4px;border-radius:50%;background:#28c840"></b></i></span>`;
     case 'grid': { const t = (GT[sk.gt] || GT.light)[1]; return `<span class="skin-pv" style="background:${svgURI(gridSVG(5, t))} 0 0/20px 20px, ${t.bg}">${[[10, 18, 12, 19], [10, 46, 40, 40], [56, 18, 34, 68]].map(([l, tp, w, h]) => `<i style="left:${l}%;top:${tp}%;width:${w}%;height:${h}%;background:${t.panel};box-shadow:0 0 0 1px ${t.rule}"></i>`).join('')}</span>`; }
     case 'pattern': return `<span class="skin-pv" style="background:${svgURI(patternSVG(sk.pattern, sk.patFg, 12))} 0 0/12px 12px, ${sk.patBg}">${body('rgba(255,255,255,.92)', 'rgba(255,255,255,.92)')}</span>`;
-    case 'glass': { const night = sk.glass === 'night'; const pnl = night ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.6)'; return `<span class="skin-pv" style="background:${(GLASS[sk.glass] || GLASS.aurora)[1]}"><i style="left:8%;top:14%;width:46%;height:72%;background:${pnl};border-radius:5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)"></i><i style="left:58%;top:14%;width:34%;height:72%;background:${pnl};border-radius:5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)"></i></span>`; }
+    case 'glass': { const night = glassDark(); const pnl = night ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.6)'; return `<span class="skin-pv" style="background:${glassBG()}"><i style="left:8%;top:14%;width:46%;height:72%;background:${pnl};border-radius:5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)"></i><i style="left:58%;top:14%;width:34%;height:72%;background:${pnl};border-radius:5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7)"></i></span>`; }
     case 'editorial': return `<span class="skin-pv" style="background:#fafaf8"><i style="left:9%;top:13%;width:43%;height:2px;background:#111"></i><i style="left:9%;top:20%;width:28%;height:7px;background:#111;border-radius:1px"></i><i style="left:9%;top:52%;width:43%;height:1px;background:#111"></i><i style="left:9%;top:66%;width:43%;height:1px;background:#111"></i><i style="left:9%;top:80%;width:43%;height:1px;background:#111"></i><i style="left:58%;top:13%;width:33%;height:74%;background:#d9d7d2"></i></span>`;
     case 'block': return `<span class="skin-pv" style="background:linear-gradient(180deg, ${sk.accent} 0 40%, #fff 40%)"><i style="left:9%;top:14%;width:13%;height:20%;border-radius:99px;background:rgba(255,255,255,.85)"></i><i style="left:26%;top:19%;width:20%;height:6px;border-radius:2px;background:#fff"></i><i style="left:9%;top:62%;width:42%;height:1px;background:#e5e8eb"></i><i style="left:9%;top:76%;width:42%;height:1px;background:#e5e8eb"></i><i style="left:58%;top:14%;width:33%;height:72%;background:#e5e8eb;border-radius:3px"></i></span>`;
     case 'note': return `<span class="skin-pv" style="background:linear-gradient(90deg, transparent 6px, rgba(240,68,82,.5) 6px, rgba(240,68,82,.5) 7px, transparent 7px), repeating-linear-gradient(180deg, transparent 0 7px, rgba(49,130,246,.2) 7px 8px), #fdfdfb"><i style="left:58%;top:16%;width:33%;height:68%;background:#e5e8eb;border-radius:3px"></i><i style="left:14%;top:18%;width:24%;height:5px;background:rgba(49,130,246,.35)"></i></span>`;
@@ -631,7 +650,7 @@ function renderSkin() {
   $('#skin-tiles').innerHTML = SKINS.map(([id, l]) => `<button type="button" class="tile${sk.type === id ? ' on' : ''}" data-act="skin" data-s="${id}">${skinPV(id)}<span>${l}</span></button>`).join('');
   let o = '';
   if (sk.type === 'mac') o = UI.sec('macOS', UI.seg('배경화면', 'skin.wall', Object.entries(WALLS).map(([k, [n]]) => [k, n])) + UI.seg('창', 'skin.winTone', [['light', '라이트'], ['dark', '다크']]));
-  else if (sk.type === 'glass') o = UI.sec('글래스', UI.seg('배경', 'skin.glass', Object.entries(GLASS).map(([k, [n]]) => [k, n])), '흐린 빛 위에 반투명한 판을 띄운 스타일이에요.');
+  else if (sk.type === 'glass') o = `<div class="section-title"><span>글래스 배경</span></div><div class="section"><div class="tiles pats">${Object.entries(GLASS).map(([k, [n]]) => `<button type="button" class="tile${sk.glass === k ? ' on' : ''}" data-act="glass" data-g="${k}"><span class="pat-pv" style="background:${glassBG(k)}"></span><span>${n}</span></button>`).join('')}<button type="button" class="tile${sk.glass === 'solid' ? ' on' : ''}" data-act="glass" data-g="solid"><span class="pat-pv" style="background:${sk.glassColor}"></span><span>단색</span></button></div>${sk.glass === 'solid' ? UI.color('바탕 색', 'skin.glassColor') : ''}</div><p class="footnote">흐린 빛 위에 반투명한 판을 띄운 스타일이에요. 단색은 바탕 색을 직접 골라요.</p>`;
   else if (sk.type === 'editorial') o = `<p class="footnote" style="padding-top:12px">잡지 지면처럼 굵은 이름과 검은 괘선으로 정리해요. 맨 위에 날짜가 든 머리말이 들어가요.</p>`;
   else if (sk.type === 'block') o = `<p class="footnote" style="padding-top:12px">프로필 줄까지 포인트 색 띠를 깔아요. 띠 색은 아래 포인트 색으로 바꿔요.</p>`;
   else if (sk.type === 'note') o = `<p class="footnote" style="padding-top:12px">줄 노트 위에 적은 것처럼 보여요. 닉네임에 형광펜이 들어가요.</p>`;
@@ -725,7 +744,7 @@ panel.addEventListener('input', (e) => {
 });
 panel.addEventListener('change', (e) => {
   const k = e.target.dataset.k;
-  if (k === 'skin.accent' || /^skin\.pat(Fg|Bg)$/.test(k || '')) renderSkin();
+  if (k === 'skin.accent' || /^skin\.(pat(Fg|Bg)|glassColor)$/.test(k || '')) renderSkin();
 });
 panel.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && e.target.dataset.addtag !== undefined && !e.isComposing) { e.preventDefault(); addTag(+e.target.dataset.addtag); }
@@ -774,6 +793,7 @@ panel.addEventListener('click', (e) => {
   }
   else if (a === 'skin') { state.skin.type = b.dataset.s; renderSkin(); }
   else if (a === 'pattern') { state.skin.pattern = b.dataset.p; renderSkin(); }
+  else if (a === 'glass') { state.skin.glass = b.dataset.g; renderSkin(); }
   else if (a === 'accent') { state.skin.accent = b.dataset.c; renderSkin(); }
   else if (a === 'photo-del') { state.profile.photo = null; renderPhotoRow(); }
   else if (a === 'bg-del') { state.skin.image = null; renderSkin(); }
