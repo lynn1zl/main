@@ -347,6 +347,7 @@ function render() {
   Object.assign(v, {
     '--fH': stack(t.head), '--fB': stack(t.body), '--lh': t.lh, '--ls': t.ls + 'em',
     '--align': t.align, '--justify': t.align === 'center' ? 'center' : 'flex-start', '--wb': t.keepAll ? 'keep-all' : 'normal',
+    '--psc': p.showPhoto ? Math.min(1.35, Math.max(.85, Math.sqrt(p.psize / 100))).toFixed(3) : 1,
     '--gap': Math.round(k * .028) + 'px', '--rad': (t.radius / 16 * .7).toFixed(3) + 'em',
   });
   card.className = `ts-${t.titleStyle} al-${t.align} ${cls}`;
@@ -365,7 +366,7 @@ function render() {
   const mast = state.skin.type === 'editorial' ? `<div class="mast"><span>PROFILE</span><span>${handle ? '@' + esc(handle) : ''}</span><span>${today}</span></div>` : '';
   const info = `<div class="info${boxed ? ' boxed' : ''}">${mast}
     <div class="prof" data-go="about" data-drop="photo">${p.showPhoto ? `<div class="ph"${photo ? ' data-img="photo"' : ''} style="${phStyle(p)}">${photo ? picHTML(photo, p.px, p.py, p.pz) : `<span class="ph-hint">${PERSON}</span>`}</div>` : ''}
-      <div class="who">${p.name.trim() ? `<div class="nm">${esc(p.name)}</div>` : `<div class="nm">${hint('닉네임')}</div>`}${p.showHandle && handle ? `<div class="hd">@${esc(handle)}</div>` : ''}${p.showSummary && p.summary.trim() ? `<div class="sm">${rich(p.summary)}</div>` : ''}</div></div>
+      <div class="who"><div class="id">${p.name.trim() ? `<div class="nm">${esc(p.name)}</div>` : `<div class="nm">${hint('닉네임')}</div>`}${p.showHandle && handle ? `<div class="hd">@${esc(handle)}</div>` : ''}</div>${p.showSummary && p.summary.trim() ? `<div class="sm">${rich(p.summary)}</div>` : ''}</div></div>
     <div class="list">${listHTML()}</div></div>`;
 
   const gal = !showGal ? '' : `<div class="gal${boxed ? ' boxed' : ''} ${g.caption === 'below' ? 'cap-below' : g.caption === 'over' ? 'cap-over' : ''}" data-go="chars">${g.title ? `<div class="lbl">${esc(g.title)}</div>` : ''}<div class="grid">${g.items.map((it, j) => {
@@ -422,6 +423,9 @@ function layoutPass() {
   const setF = (f) => card.style.setProperty('--fz', (base * f).toFixed(2) + 'px');
   const over = () => info.scrollHeight > info.clientHeight + 1 || list.scrollWidth > list.clientWidth + 1;
   setF(1);
+  // 프로필: 사진이 글보다 훨씬 크면 이름은 사진 윗선, 계정 요약은 사진 아랫선에 맞춤
+  const prof = $('.prof', card), ph = $('.ph', card), who = $('.who', card);
+  if (prof) { prof.classList.remove('tall'); if (ph && who && ph.offsetHeight > who.offsetHeight * 1.3) prof.classList.add('tall'); }
   if (t.autofit) {
     let lo = .45, hi = 1.12;
     setF(hi); if (!over()) { $$('.grid', card).forEach(applyGrid); setBand(); return; }

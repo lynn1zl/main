@@ -716,7 +716,7 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 #card .lay { flex: 1; min-height: 0; display: grid; gap: var(--gap); }
 #card .info { display: flex; flex-direction: column; gap: var(--gap); min-height: 0; min-width: 0; overflow: hidden; }
 
-#card .prof { display: flex; align-items: center; gap: .8em; flex: none; padding: .22em 0 .22em .22em; }
+#card .prof { display: flex; align-items: center; gap: calc(.8em * var(--psc, 1)); flex: none; padding: .22em 0 .22em .22em; }
 #card .ph {
   width: 3.4em; height: 3.4em; border-radius: 50%; flex: none;
   background: var(--c-panel) center/cover no-repeat;
@@ -726,9 +726,14 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 }
 #card .ph svg { width: 45%; height: 45%; opacity: .5; }
 #card .who { min-width: 0; display: flex; flex-direction: column; gap: .1em; }
-#card .nm { font-family: var(--fH); font-weight: 700; font-size: 1.32em; line-height: 1.2; letter-spacing: -0.025em; }
+#card .who .id { display: flex; flex-direction: column; gap: .1em; min-width: 0; }
+#card .prof.tall { align-items: stretch; }
+#card .prof.tall .who { justify-content: space-between; }
+#card .prof.tall .nm { margin-top: -.14em; }
+#card .prof.tall .sm { margin-top: 0; margin-bottom: -.22em; }
+#card .nm { font-family: var(--fH); font-weight: 700; font-size: calc(1.32em * var(--psc, 1)); line-height: 1.2; letter-spacing: -0.025em; }
 #card .hd { font-size: .74em; color: var(--c-sub); font-weight: 500; letter-spacing: 0; }
-#card .sm { font-size: .76em; color: var(--c-ink2); margin-top: .3em; line-height: 1.45; }
+#card .sm { font-size: .76em; color: var(--c-ink2); margin-top: .3em; line-height: 1.45; white-space: pre-wrap; word-break: var(--wb); }
 
 /* 소개: 상자 대신 가는 선으로 나눈 목록. 프로필은 위, 목록은 아래에 붙여 여백을 한 곳에 모음 */
 #card .list { margin-top: auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: calc(var(--gap) * 1.1); }
@@ -817,7 +822,7 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 /* 에디토리얼: 잡지 지면 */
 #card .mast { display: flex; justify-content: space-between; gap: 1em; font-family: var(--fH); font-size: .46em; font-weight: 700; letter-spacing: .18em; padding-bottom: .9em; border-bottom: 2px solid var(--c-ink); color: var(--c-ink); flex: none; }
 #card.sk-editorial .ph { box-shadow: none; border-radius: 0; width: 3em; height: 3.8em; }
-#card.sk-editorial .nm { font-size: 1.9em; font-weight: 800; letter-spacing: -0.045em; line-height: 1.05; }
+#card.sk-editorial .nm { font-size: calc(1.9em * var(--psc, 1)); font-weight: 800; letter-spacing: -0.045em; line-height: 1.05; }
 #card.sk-editorial .hd { letter-spacing: .04em; }
 #card.sk-editorial .lbl { color: var(--c-ink); font-weight: 700; letter-spacing: .1em; }
 #card.sk-editorial .sec { border-top-width: 1px; }
@@ -834,7 +839,7 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 #card.sk-block .prof .hd, #card.sk-block .prof .sm, #card.sk-block .gal > .lbl { opacity: .82; }
 #card.sk-block .prof .nm .ph-hint { color: inherit; }
 #card.sk-block .ph { box-shadow: 0 0 0 .12em var(--c-on-accent); }
-#card.sk-block .nm { font-size: 1.6em; font-weight: 800; letter-spacing: -0.04em; }
+#card.sk-block .nm { font-size: calc(1.6em * var(--psc, 1)); font-weight: 800; letter-spacing: -0.04em; }
 #card.sk-block .gi { box-shadow: 0 .5em 1.4em rgba(0, 23, 51, .14); }
 
 /* 노트 */
