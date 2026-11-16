@@ -613,6 +613,7 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 .chip.danger:hover { color: var(--danger); }
 .modal-box.narrow { width: min(420px, 100%); }
 .modal-input { width: 100%; margin-top: 14px; }
+#cap-opts > .row:first-child::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--hair); }
 /* 사진 칸 메뉴 */
 .pickmenu { position: fixed; right: auto; min-width: 230px; z-index: 95; }
 .pickmenu > button { display: flex; align-items: flex-start; gap: 10px; }
@@ -779,16 +780,17 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 #card.exporting [data-img] { cursor: default; }
 #card .gi .empty { flex: 1; display: grid; place-items: center; color: var(--c-sub); }
 #card .gi .empty svg { width: 1.3em; height: 1.3em; opacity: .45; }
-#card .cap-over .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 2em .85em .7em; background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .58)); color: #fff; display: flex; align-items: flex-end; gap: .6em; }
+#card .cap-over .cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 2em .85em .7em; background: linear-gradient(180deg, var(--cap0, rgba(0,0,0,0)), var(--cap1, rgba(0,0,0,.58))); color: var(--cap-ink, #fff); text-shadow: var(--cap-shadow, none); display: flex; flex-wrap: wrap; align-items: flex-end; column-gap: .6em; row-gap: .2em; }
 #card .cap-below .gi { background: transparent; }
 #card .cap-below .gi .im { border-radius: var(--rad); }
-#card .cap-below .cap { flex: none; padding: .45em .1em 0; display: flex; align-items: flex-end; gap: .6em; }
-#card .cap .ct { flex: 1; min-width: 0; }
-#card .cap .g { font-size: .5em; opacity: .85; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: .01em; }
-#card .cap .n { font-family: var(--fH); font-weight: 600; font-size: .72em; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
+#card .cap-below .cap { flex: none; padding: .45em .1em 0; display: flex; flex-wrap: wrap; align-items: flex-end; column-gap: .6em; row-gap: .2em; }
+#card .cap .ct { flex: 1 1 auto; min-width: 0; }
+#card .cap .g { font-size: .5em; opacity: .85; line-height: 1.35; word-break: keep-all; overflow-wrap: anywhere; letter-spacing: .01em; }
+#card .cap .n { font-family: var(--fH); font-weight: 600; font-size: .72em; line-height: 1.3; word-break: keep-all; overflow-wrap: anywhere; letter-spacing: -0.01em; }
 #card .cap-below .cap .g { color: var(--c-sub); opacity: 1; }
 #card .cr { font-size: .42em; line-height: 1.3; white-space: nowrap; font-weight: 500; letter-spacing: .01em; font-family: var(--fB); }
-#card .cap .cr { opacity: .8; flex: none; padding-bottom: .2em; }
+/* 커미션 출처: 자리가 모자라면 이름을 자르지 않고 다음 줄 오른쪽으로 내려감 */
+#card .cap .cr { opacity: .8; flex: 0 1 auto; margin-left: auto; padding-bottom: .2em; text-align: right; white-space: normal; overflow-wrap: anywhere; }
 #card .cap-below .cap .cr { color: var(--c-sub); opacity: 1; }
 #card .cr.pill { z-index: 1; position: absolute; right: .6em; bottom: .55em; background: rgba(0, 0, 0, .42); color: #fff; padding: .22em .6em; border-radius: 999px; }
 

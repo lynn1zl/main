@@ -85,7 +85,7 @@ function defaults() {
       { id: 'dream', type: 'dream', title: '드림 성향', on: true, wide: false, showAll: true, opts: { ONLY: false, OPEN: false, CBC: false }, note: '' },
       { id: 'ng', type: 'text', title: 'NG', on: true, wide: false, body: '' },
     ],
-    gallery: { on: true, title: '', pos: 'auto', share: 46, caption: 'over', items: [blankItem(), blankItem()] },
+    gallery: { on: true, title: '', pos: 'auto', share: 46, caption: 'over', capColor: '#000000', capAlpha: 58, items: [blankItem(), blankItem()] },
     text: { head: 'Pretendard', body: 'Pretendard', scale: 100, lh: 1.6, ls: 0, align: 'left', keepAll: true, titleStyle: 'plain', autofit: true, radius: 16 },
     skin: { type: 'white', accent: '#3182f6', wall: 'mist', winTone: 'light', gt: 'light', glass: 'aurora', glassColor: '#dbe7fb', pattern: 'dots', patBg: '#e8f3ff', patFg: '#c4dcfc', patSize: 36, image: null, imgFit: 'cover', dimTone: 'dark', dim: 20, panelTone: 'light', panelAlpha: 92 },
     layout: { ratio: '32', w: 3, h: 2 },
@@ -330,6 +330,15 @@ function phStyle(p) {
   const r = p.pshape === 'circle' && rw === rh ? '50%' : p.pshape === 'square' ? '0' : (Math.min(w, h) * .22).toFixed(3) + 'em';
   return `width:${w.toFixed(3)}em;height:${h.toFixed(3)}em;border-radius:${r}`;
 }
+/* 이름표 그라데이션: 색 · 불투명도, 글자 색은 바탕에 맞춰 자동 */
+function capVars(g) {
+  const a = g.capAlpha / 100, lightCap = lum(g.capColor) > .45 && a >= .3;
+  return {
+    '--cap0': rgba(g.capColor, 0), '--cap1': rgba(g.capColor, a),
+    '--cap-ink': lightCap ? '#191f28' : '#ffffff',
+    '--cap-shadow': lightCap ? 'none' : `0 1px ${a < .35 ? 6 : 3}px rgba(0,0,0,${a < .35 ? .45 : .2})`,
+  };
+}
 function listHTML() {
   let col = 0;
   return state.sections.filter((s) => s.on).map((s) => {
@@ -347,6 +356,7 @@ function render() {
   Object.assign(v, {
     '--fH': stack(t.head), '--fB': stack(t.body), '--lh': t.lh, '--ls': t.ls + 'em',
     '--align': t.align, '--justify': t.align === 'center' ? 'center' : 'flex-start', '--wb': t.keepAll ? 'keep-all' : 'normal',
+    ...capVars(g),
     '--psc': p.showPhoto ? Math.min(1.35, Math.max(.85, Math.sqrt(p.psize / 100))).toFixed(3) : 1,
     '--gap': Math.round(k * .028) + 'px', '--rad': (t.radius / 16 * .7).toFixed(3) + 'em',
   });
@@ -500,7 +510,7 @@ const PANES = [
   { id: 'chars', icon: 'image', label: '갤러리', html: () => `${UI.head('갤러리', '1개부터 6개까지, 개수에 맞춰 그리드가 알아서 배치돼요.')}
     <div class="section-title"><span id="g-count"></span></div><div class="section" id="g-list"></div>
     <p class="footnote">사진은 칸에 끌어다 놓거나, 여러 장을 한 번에 고르거나, 링크로 넣어도 돼요. 이미지 주소를 복사해 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌면 위치가, 휠을 굴리면 확대가 바뀌어요. 커미션 출처는 이미지 오른쪽 아래에 작게 들어가요.</p>
-    ${UI.sec('이름표', UI.seg('표시', 'gallery.caption', [['over', '이미지 위'], ['below', '이미지 아래'], ['none', '숨김']]))}` },
+    ${UI.sec('이름표', UI.seg('표시', 'gallery.caption', [['over', '이미지 위'], ['below', '이미지 아래'], ['none', '숨김']]) + `<div id="cap-opts">${UI.color('그라데이션 색', 'gallery.capColor')}${UI.slider('그라데이션 불투명도', 'gallery.capAlpha', 0, 100, 1, '%')}</div>`, '그라데이션은 ‘이미지 위’일 때 이름 뒤에 깔려요. 밝은 색을 고르면 글자가 어두워져요.')}` },
   { id: 'text', icon: 'type', label: '텍스트', html: () => `${UI.head('텍스트', '글꼴과 조판을 정해요.')}
     ${UI.sec('글꼴', UI.font('제목 · 이름', 'text.head', '닉네임, 메뉴 제목, 캐릭터 이름') + UI.font('본문', 'text.body', '소개 글, 태그, 계정 요약'))}
     ${UI.sec('조판', UI.slider('글자 크기', 'text.scale', 60, 140, 1, '%') + UI.slider('줄 간격', 'text.lh', 1.2, 2.2, .05, '×') + UI.slider('자간', 'text.ls', -.05, .12, .005, 'em') + UI.seg('정렬', 'text.align', [['left', '왼쪽'], ['center', '가운데']]) + UI.seg('메뉴 제목', 'text.titleStyle', [['plain', '기본'], ['accent', '포인트'], ['bold', '굵게']]) + UI.sw('단어 단위 줄바꿈', 'text.keepAll', '한글 단어가 중간에서 끊기지 않아요') + UI.sw('자동 맞춤', 'text.autofit', '글이 넘치면 크기를 줄여 카드 안에 맞춰요'))}` },
@@ -597,6 +607,7 @@ function renderAbout() {
   syncIn($('#about-list'));
 }
 function renderGallery() {
+  $('#cap-opts').hidden = state.gallery.caption !== 'over';
   const items = state.gallery.items, n = items.length;
   $('#g-count').textContent = `캐릭터 ${n} / 6`;
   $('#g-list').innerHTML = items.map((it, j) => {
@@ -769,6 +780,7 @@ panel.addEventListener('click', (e) => {
     setPath(state, seg.dataset.seg, v);
     syncSeg(seg);
     if (/^skin\.(wall|gt|glass)$/.test(seg.dataset.seg)) renderSkin();
+    if (seg.dataset.seg === 'gallery.caption') $('#cap-opts').hidden = v !== 'over';
     schedule(); return;
   }
   const pick = e.target.closest('[data-pick]');
