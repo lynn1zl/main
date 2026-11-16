@@ -57,11 +57,11 @@ const PATTERNS = [['dots', '도트'], ['grid', '모눈'], ['check', '체크'], [
 const TWEET_TAGS = ['RT', '마음', '일상', '탐라대화', '인용', '구독', '썰', '연성', '앓이', '기타'];
 
 const uid = () => Math.random().toString(36).slice(2, 10);
-const blankItem = () => ({ img: null, genre: '', name: '', credit: '', x: 50, y: 30 });
+const blankItem = () => ({ img: null, genre: '', name: '', credit: '', x: 50, y: 30, z: 1 });
 function defaults() {
   return {
     v: 1,
-    profile: { photo: null, name: '', handle: '', summary: '', showHandle: true, showSummary: true },
+    profile: { photo: null, px: 50, py: 50, pz: 1, name: '', handle: '', summary: '', showHandle: true, showSummary: true },
     sections: [
       { id: 'intro', type: 'text', title: '자기소개', on: true, wide: true, body: '' },
       { id: 'tweet', type: 'tags', title: '트윗 성향', on: true, wide: true, showAll: false, tags: TWEET_TAGS.map((l) => ({ label: l, on: false })) },
@@ -250,6 +250,7 @@ const card = $('#card');
 const PERSON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1.2-3.6 4-5.2 7-5.2s5.8 1.6 7 5.2"/></svg>';
 const PIC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m5 17 4.5-4.5 3 3L15 13l4 4"/></svg>';
 const hint = (t) => `<span class="ph-hint">${t}</span>`;
+const picHTML = (u, x, y, z) => `<img class="pic" src="${u}" alt="" draggable="false" style="object-position:${x}% ${y}%;transform-origin:${x}% ${y}%;transform:scale(${z || 1})">`;
 /* 서식: **굵게** · *기울임* · ==형광펜== */
 const fmt = (h) => h.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/==(.+?)==/g, '<mark>$1</mark>').replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*/g, '$1<i>$2</i>');
 const rich = (s) => fmt(esc(s));
@@ -314,7 +315,7 @@ function render() {
 
   const boxed = state.skin.type === 'pattern' || state.skin.type === 'photo';
   const info = `<div class="info${boxed ? ' boxed' : ''}">
-    <div class="prof" data-go="profile" data-drop="photo"><div class="ph" style="${photo ? `background-image:url(&quot;${photo}&quot;)` : ''}">${photo ? '' : `<span class="ph-hint">${PERSON}</span>`}</div>
+    <div class="prof" data-go="profile" data-drop="photo"><div class="ph"${photo ? ' data-img="photo"' : ''}>${photo ? picHTML(photo, p.px, p.py, p.pz) : `<span class="ph-hint">${PERSON}</span>`}</div>
       <div class="who">${p.name.trim() ? `<div class="nm">${esc(p.name)}</div>` : `<div class="nm">${hint('닉네임')}</div>`}${p.showHandle && handle ? `<div class="hd">@${esc(handle)}</div>` : ''}${p.showSummary && p.summary.trim() ? `<div class="sm">${rich(p.summary)}</div>` : ''}</div></div>
     <div class="list">${listHTML()}</div></div>`;
 
@@ -325,7 +326,7 @@ function render() {
     const cap = hasCap ? `<div class="cap"><div class="ct">${it.genre.trim() ? `<div class="g">${esc(it.genre)}</div>` : ''}${it.name.trim() ? `<div class="n">${esc(it.name)}</div>` : ''}</div>${credInCap ? `<span class="cr">${credit}</span>` : ''}</div>` : '';
     const pill = credit && !credInCap ? `<span class="cr pill">${credit}</span>` : '';
     const u = imgURL(it.img);
-    const im = u ? `<div class="im" style="background-image:url(&quot;${u}&quot;);background-position:${it.x}% ${it.y}%">${pill}</div>` : `<div class="empty"><span class="ph-hint">${PIC}</span></div>`;
+    const im = u ? `<div class="im" data-img="g${j}">${picHTML(u, it.x, it.y, it.z)}${pill}</div>` : `<div class="empty"><span class="ph-hint">${PIC}</span></div>`;
     return `<div class="gi" data-drop="g${j}">${im}${cap}</div>`;
   }).join('')}</div></div>`;
 
@@ -415,13 +416,13 @@ const UI = {
 
 const PANES = [
   { id: 'profile', icon: 'person', label: '프로필', html: () => `${UI.head('프로필', '메인트 맨 위에 들어가는 내 정보예요.')}
-    ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 고르기">${icon('person')}</button><div class="img-acts"><button type="button" class="chip" data-pick="photo"><span data-icon="image"></span>사진 고르기</button><button type="button" class="chip danger" data-act="photo-del" hidden>지우기</button></div></div>`, '끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요.')}
+    ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 고르기">${icon('person')}</button><div class="img-acts"><button type="button" class="chip" data-pick="photo"><span data-icon="image"></span>사진 고르기</button><button type="button" class="chip danger" data-act="photo-del" hidden>지우기</button></div></div><div id="photo-adj" hidden>${UI.slider('확대', 'profile.pz', 1, 4, .01, '×')}${UI.slider('가로 위치', 'profile.px', 0, 100, 1, '%')}${UI.slider('세로 위치', 'profile.py', 0, 100, 1, '%')}</div>`, '끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌거나 휠을 굴려도 맞출 수 있어요.')}
     ${UI.sec('정보', UI.text('닉네임', 'profile.name', '닉네임') + `<div class="row stack"><span class="row-label">아이디</span><input class="input" type="text" data-k="profile.handle" placeholder="아이디" autocapitalize="off" spellcheck="false"></div>` + UI.area('계정 요약', 'profile.summary', 2, '계정을 한두 줄로 소개해 주세요'))}
     ${UI.sec('보이기', UI.sw('아이디', 'profile.showHandle') + UI.sw('계정 요약', 'profile.showSummary'))}` },
   { id: 'about', icon: 'note', label: '소개', html: () => `${UI.head('소개', '자기소개, 트윗 성향, 드림 성향, NG를 적어요. 이름과 순서는 ‘구성’에서 바꿔요.')}<div id="about-list"></div><p class="footnote">글 칸을 누르면 뜨는 도구로 <b>굵게</b> · <i>기울임</i> · 형광펜을 넣을 수 있어요. 단축키 Ctrl/⌘ + B · I · Shift + H</p>` },
   { id: 'chars', icon: 'image', label: '캐릭터', html: () => `${UI.head('좋아하는 캐릭터', '1개부터 6개까지, 개수에 맞춰 그리드가 알아서 배치돼요.')}
     <div class="section-title"><span id="g-count"></span></div><div class="section" id="g-list"></div>
-    <p class="footnote">사진은 칸에 끌어다 놓거나, 여러 장을 한 번에 골라도 돼요. 커미션 출처는 이미지 오른쪽 아래에 작게 들어가요.</p>
+    <p class="footnote">사진은 칸에 끌어다 놓거나, 여러 장을 한 번에 골라도 돼요. 미리보기에서 사진을 끌면 위치가, 휠을 굴리면 확대가 바뀌어요. 커미션 출처는 이미지 오른쪽 아래에 작게 들어가요.</p>
     ${UI.sec('이름표', UI.seg('표시', 'gallery.caption', [['over', '이미지 위'], ['below', '이미지 아래'], ['none', '숨김']]))}` },
   { id: 'layout', icon: 'layers', label: '구성', html: () => `${UI.head('구성', '판형과 메뉴의 순서 · 이름 · 너비를 정해요.')}
     <div class="section-title"><span>판형</span></div><div class="section"><div class="tiles ratio" id="ratio-tiles"></div><div class="row" id="custom-row" hidden><span class="row-label">직접 입력</span><div class="custom-ratio"><input class="input" type="number" min="1" max="40" id="rw" aria-label="가로"><span>:</span><input class="input" type="number" min="1" max="40" id="rh" aria-label="세로"></div></div></div>
@@ -464,7 +465,49 @@ function setPane(id, user) {
 }
 rail.addEventListener('click', (e) => { const b = e.target.closest('.rail-item'); if (b) setPane(b.dataset.pane, true); });
 $('#sheet-handle').addEventListener('click', () => { app.classList.remove('sheet-open'); setTimeout(fit, 340); });
-card.addEventListener('click', (e) => { const go = e.target.closest('[data-go]'); if (go) setPane(go.dataset.go, true); });
+card.addEventListener('click', (e) => {
+  if (dragged) { dragged = false; return; }
+  const go = e.target.closest('[data-go]'); if (go) setPane(go.dataset.go, true);
+});
+
+/* ---------- 미리보기에서 사진 맞추기: 끌면 위치, 휠은 확대 ---------- */
+const imgKeys = (t) => (t === 'photo' ? { o: state.profile, x: 'px', y: 'py', z: 'pz', base: 'profile.p' } : { o: state.gallery.items[+t.slice(1)], x: 'x', y: 'y', z: 'z', base: `gallery.items.${t.slice(1)}.` });
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+function syncImgInputs(t) {
+  const k = imgKeys(t);
+  [k.x, k.y, k.z].forEach((f) => { const el = $(`#panel [data-k="${k.base}${f}"]`); if (el) syncControl(el); });
+  if (t !== 'photo') { const th = $$('#g-list .gthumb')[+t.slice(1)]; if (th) th.style.backgroundPosition = `${k.o.x}% ${k.o.y}%`; }
+}
+let drag = null, dragged = false;
+card.addEventListener('pointerdown', (e) => {
+  const el = e.target.closest('[data-img]'); if (!el || e.button !== 0) return;
+  const k = imgKeys(el.dataset.img); if (!k.o) return;
+  const r = el.getBoundingClientRect();
+  drag = { t: el.dataset.img, k, sx: e.clientX, sy: e.clientY, x0: k.o[k.x], y0: k.o[k.y], w: r.width, h: r.height, moved: false };
+  e.preventDefault();
+});
+addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+  if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+  drag.moved = true; card.style.cursor = 'grabbing';
+  const z = drag.k.o[drag.k.z] || 1;
+  drag.k.o[drag.k.x] = Math.round(clamp(drag.x0 - dx / drag.w * 100 / z * 1.6, 0, 100));
+  drag.k.o[drag.k.y] = Math.round(clamp(drag.y0 - dy / drag.h * 100 / z * 1.6, 0, 100));
+  schedule();
+});
+addEventListener('pointerup', () => {
+  if (!drag) return;
+  if (drag.moved) { dragged = true; syncImgInputs(drag.t); setTimeout(() => { dragged = false; }, 0); }
+  card.style.cursor = ''; drag = null;
+});
+card.addEventListener('wheel', (e) => {
+  const el = e.target.closest('[data-img]'); if (!el) return;
+  e.preventDefault();
+  const k = imgKeys(el.dataset.img); if (!k.o) return;
+  k.o[k.z] = +clamp((k.o[k.z] || 1) * Math.exp(-e.deltaY * .0015), 1, 4).toFixed(2);
+  syncImgInputs(el.dataset.img); schedule();
+}, { passive: false });
 
 /* ---------- 목록 ---------- */
 const moveBtns = (list, j, n, del = true) => `<div class="lbtns"><button type="button" class="icon-btn sm" data-act="up" data-list="${list}" data-i="${j}" aria-label="위로"${j === 0 ? ' disabled' : ''}>${icon('up')}</button><button type="button" class="icon-btn sm" data-act="down" data-list="${list}" data-i="${j}" aria-label="아래로"${j === n - 1 ? ' disabled' : ''}>${icon('down')}</button>${del ? `<button type="button" class="icon-btn sm danger" data-act="del" data-list="${list}" data-i="${j}" aria-label="지우기">${icon('trash')}</button>` : ''}</div>`;
@@ -492,7 +535,7 @@ function renderGallery() {
         <input class="input sm" type="text" data-k="gallery.items.${j}.genre" placeholder="장르">
         <input class="input sm" type="text" data-k="gallery.items.${j}.name" placeholder="캐릭터 이름">
         <input class="input sm" type="text" data-k="gallery.items.${j}.credit" placeholder="커미션 출처 (선택)">
-        ${u ? `<div class="gpos"><span>가로</span><input type="range" class="slider" min="0" max="100" data-k="gallery.items.${j}.x" aria-label="가로 위치"><span>세로</span><input type="range" class="slider" min="0" max="100" data-k="gallery.items.${j}.y" aria-label="세로 위치"></div>` : ''}
+        ${u ? `<div class="gpos"><span>확대</span><input type="range" class="slider" min="1" max="4" step="0.01" data-k="gallery.items.${j}.z" aria-label="확대"><span>가로</span><input type="range" class="slider" min="0" max="100" data-k="gallery.items.${j}.x" aria-label="가로 위치"><span>세로</span><input type="range" class="slider" min="0" max="100" data-k="gallery.items.${j}.y" aria-label="세로 위치"></div>` : ''}
       </div></div>`;
   }).join('') + (n < 6 ? `<button type="button" class="add-row" data-act="g-add">${icon('plus')}캐릭터 추가</button><button type="button" class="add-row" data-act="g-multi">${icon('image')}사진 여러 장 한 번에 넣기</button>` : '');
   syncIn($('#g-list'));
@@ -548,6 +591,7 @@ function renderPhotoRow() {
   const u = imgURL(state.profile.photo), th = $('[data-pane="profile"] .thumb');
   th.style.backgroundImage = u ? `url("${u}")` : ''; th.innerHTML = u ? '' : icon('person');
   $('[data-act="photo-del"]').hidden = !u;
+  $('#photo-adj').hidden = !u;
 }
 
 /* ---------- 값 ↔ 입력 칸 ---------- */
@@ -733,7 +777,7 @@ async function putImages(target, files) {
   files = files.filter((f) => f.type.startsWith('image/'));
   if (!files.length) return;
   try {
-    if (target === 'photo') { state.profile.photo = await addImage(files[0], 800); renderPhotoRow(); }
+    if (target === 'photo') { state.profile.photo = await addImage(files[0], 1000); Object.assign(state.profile, { px: 50, py: 50, pz: 1 }); renderPhotoRow(); }
     else if (target === 'bg') { state.skin.image = await addImage(files[0], 2600); renderSkin(); }
     else {
       const items = state.gallery.items;
@@ -744,6 +788,7 @@ async function putImages(target, files) {
         if (j >= 6) { toast('캐릭터는 6개까지 넣을 수 있어요'); break; }
         if (!items[j]) items.push(blankItem());
         items[j].img = await addImage(f);
+        Object.assign(items[j], { x: 50, y: 30, z: 1 });
         j++;
       }
       renderGallery();
