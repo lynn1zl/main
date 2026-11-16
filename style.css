@@ -612,6 +612,8 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 .chip.danger { padding: 0 10px; color: var(--text-3); }
 .chip.danger:hover { color: var(--danger); }
 .modal-box.narrow { width: min(420px, 100%); }
+.modal-input { width: 100%; margin-top: 14px; }
+.gfields .ghead .lbtns { display: flex; }
 @media (max-width: 900px) { .hist .icon-btn { width: 34px; height: 34px; } }
 
 /* =========================================================
@@ -641,7 +643,7 @@ textarea.input { resize: vertical; line-height: 1.6; min-height: 52px; display: 
 
 /* 캐릭터 목록 */
 .gitem { position: relative; display: grid; grid-template-columns: 72px 1fr; gap: 12px; padding: 14px 12px 14px 16px; }
-.gitem + .gitem::before, .gitem + .add-row::before {
+.gitem + .gitem::before, .gitem + .add-row::before, .add-row + .add-row::before {
   content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--hair);
 }
 .gthumb {

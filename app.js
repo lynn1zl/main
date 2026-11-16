@@ -19,6 +19,7 @@ const ICONS = {
   trash: '<path d="M5 7h14M10 4h4M7 7l1 12.5a1.5 1.5 0 0 0 1.5 1.5h5a1.5 1.5 0 0 0 1.5-1.5L17 7"/>',
   up: '<path d="m6 15 6-6 6 6"/>',
   down: '<path d="m6 9 6 6 6-6"/>',
+  link: '<path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/>',
   undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
   redo: '<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
 };
@@ -469,13 +470,13 @@ const PANES = [
     <p class="footnote">‘반’ 너비 메뉴 두 개가 이어지면 나란히 놓여요.</p>
     ${UI.sec('갤러리', UI.sw('갤러리 보이기', 'gallery.on') + UI.text('제목', 'gallery.title', '비우면 제목 없이') + UI.seg('위치', 'gallery.pos', [['auto', '자동'], ['left', '왼쪽'], ['right', '오른쪽'], ['bottom', '아래']]) + UI.slider('크기', 'gallery.share', 28, 64, 1, '%'), '자동은 가로형이면 오른쪽, 세로형 · 정사각형이면 아래예요.')}` },
   { id: 'about', icon: 'note', label: '소개', html: () => `${UI.head('소개')}
-    ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 고르기">${icon('person')}</button><div class="img-acts"><button type="button" class="chip" data-pick="photo"><span data-icon="image"></span>사진 고르기</button><button type="button" class="chip danger" data-act="photo-del" hidden>지우기</button></div></div><div id="photo-adj" hidden>${UI.slider('확대', 'profile.pz', 1, 4, .01, '×')}${UI.slider('가로 위치', 'profile.px', 0, 100, 1, '%')}${UI.slider('세로 위치', 'profile.py', 0, 100, 1, '%')}</div>`, '끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌거나 휠을 굴려도 맞출 수 있어요.')}
+    ${UI.sec('프로필 사진', `<div class="row img-row" data-drop-row="photo"><button type="button" class="thumb" data-pick="photo" aria-label="프로필 사진 고르기">${icon('person')}</button><div class="img-acts"><button type="button" class="chip" data-pick="photo"><span data-icon="image"></span>사진 고르기</button><button type="button" class="chip" data-act="img-link" data-target="photo"><span data-icon="link"></span>링크</button><button type="button" class="chip danger" data-act="photo-del" hidden>지우기</button></div></div><div id="photo-adj" hidden>${UI.slider('확대', 'profile.pz', 1, 4, .01, '×')}${UI.slider('가로 위치', 'profile.px', 0, 100, 1, '%')}${UI.slider('세로 위치', 'profile.py', 0, 100, 1, '%')}</div>`, '끌어다 놓거나 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌거나 휠을 굴려도 맞출 수 있어요.')}
     ${UI.sec('정보', UI.text('닉네임', 'profile.name', '닉네임') + `<div class="row stack"><span class="row-label">아이디</span><input class="input" type="text" data-k="profile.handle" placeholder="아이디" autocapitalize="off" spellcheck="false"></div>` + UI.area('계정 요약', 'profile.summary', 2, '계정을 한두 줄로 소개해 주세요'))}
     ${UI.sec('보이기', UI.sw('아이디', 'profile.showHandle') + UI.sw('계정 요약', 'profile.showSummary'))}
     <div id="about-list"></div><p class="footnote">글 칸을 누르면 뜨는 도구로 <b>굵게</b> · <i>기울임</i> · <u>밑줄</u> · 형광펜 · 글자 색을 넣을 수 있어요. 단축키 Ctrl/⌘ + B · I · U · Shift + H</p>` },
   { id: 'chars', icon: 'image', label: '갤러리', html: () => `${UI.head('갤러리', '1개부터 6개까지, 개수에 맞춰 그리드가 알아서 배치돼요.')}
     <div class="section-title"><span id="g-count"></span></div><div class="section" id="g-list"></div>
-    <p class="footnote">사진은 칸에 끌어다 놓거나, 여러 장을 한 번에 골라도 돼요. 미리보기에서 사진을 끌면 위치가, 휠을 굴리면 확대가 바뀌어요. 커미션 출처는 이미지 오른쪽 아래에 작게 들어가요.</p>
+    <p class="footnote">사진은 칸에 끌어다 놓거나, 여러 장을 한 번에 고르거나, 링크로 넣어도 돼요. 이미지 주소를 복사해 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌면 위치가, 휠을 굴리면 확대가 바뀌어요. 커미션 출처는 이미지 오른쪽 아래에 작게 들어가요.</p>
     ${UI.sec('이름표', UI.seg('표시', 'gallery.caption', [['over', '이미지 위'], ['below', '이미지 아래'], ['none', '숨김']]))}` },
   { id: 'text', icon: 'type', label: '텍스트', html: () => `${UI.head('텍스트', '글꼴과 조판을 정해요.')}
     ${UI.sec('글꼴', UI.font('제목 · 이름', 'text.head', '닉네임, 메뉴 제목, 캐릭터 이름') + UI.font('본문', 'text.body', '소개 글, 태그, 계정 요약'))}
@@ -578,13 +579,13 @@ function renderGallery() {
     return `<div class="gitem" data-drop-row="g${j}">
       <button type="button" class="gthumb" data-pick="g${j}" style="${u ? `background-image:url(&quot;${u}&quot;);background-position:${it.x}% ${it.y}%` : ''}" aria-label="${j + 1}번 이미지 고르기">${u ? '' : icon('image')}</button>
       <div class="gfields">
-        <div class="ghead"><span class="gnum">${j + 1}</span>${moveBtns('gallery.items', j, n)}</div>
+        <div class="ghead"><span class="gnum">${j + 1}</span><div class="lbtns"><button type="button" class="icon-btn sm" data-act="img-link" data-target="g${j}" aria-label="링크로 이미지 넣기" title="링크로 이미지 넣기">${icon('link')}</button>${moveBtns('gallery.items', j, n)}</div></div>
         <input class="input sm" type="text" data-k="gallery.items.${j}.genre" placeholder="장르">
         <input class="input sm" type="text" data-k="gallery.items.${j}.name" placeholder="캐릭터 이름">
         <input class="input sm" type="text" data-k="gallery.items.${j}.credit" placeholder="커미션 출처 (선택)">
         ${u ? `<div class="gpos"><span>확대</span><input type="range" class="slider" min="1" max="4" step="0.01" data-k="gallery.items.${j}.z" aria-label="확대"><span>가로</span><input type="range" class="slider" min="0" max="100" data-k="gallery.items.${j}.x" aria-label="가로 위치"><span>세로</span><input type="range" class="slider" min="0" max="100" data-k="gallery.items.${j}.y" aria-label="세로 위치"></div>` : ''}
       </div></div>`;
-  }).join('') + (n < 6 ? `<button type="button" class="add-row" data-act="g-add">${icon('plus')}캐릭터 추가</button><button type="button" class="add-row" data-act="g-multi">${icon('image')}사진 여러 장 한 번에 넣기</button>` : '');
+  }).join('') + (n < 6 ? `<button type="button" class="add-row" data-act="g-add">${icon('plus')}캐릭터 추가</button><button type="button" class="add-row" data-act="g-multi">${icon('image')}사진 여러 장 한 번에 넣기</button><button type="button" class="add-row" data-act="img-link" data-target="g-new">${icon('link')}링크로 넣기</button>` : '');
   syncIn($('#g-list'));
 }
 function renderMenuList() {
@@ -637,7 +638,7 @@ function renderSkin() {
   else if (sk.type === 'film') o = `<p class="footnote" style="padding-top:12px">필름 한 컷처럼 위아래에 구멍과 번호가 들어가요.</p>`;
   else if (sk.type === 'grid') o = UI.sec('그리드', UI.seg('톤', 'skin.gt', Object.entries(GT).map(([k, [n]]) => [k, n])), '가는 선으로 칸을 나눈 격자예요. 모서리에 재단 표시가 들어가요.');
   else if (sk.type === 'pattern') o = `<div class="section-title"><span>무늬</span></div><div class="section"><div class="tiles pats">${PATTERNS.map(([p, n]) => `<button type="button" class="tile${sk.pattern === p ? ' on' : ''}" data-act="pattern" data-p="${p}"><span class="pat-pv" style="background:${svgURI(patternSVG(p, sk.patFg, 16))} 0 0/16px 16px, ${sk.patBg}"></span><span>${n}</span></button>`).join('')}</div>${UI.color('바탕 색', 'skin.patBg')}${UI.color('무늬 색', 'skin.patFg')}${UI.slider('무늬 크기', 'skin.patSize', 16, 96, 2, 'px')}</div>`;
-  else if (sk.type === 'photo') o = UI.sec('사진 배경', `<div class="row img-row"><button type="button" class="thumb" data-pick="bg" aria-label="배경 사진 고르기" style="${imgURL(sk.image) ? `background-image:url(&quot;${imgURL(sk.image)}&quot;)` : ''}">${imgURL(sk.image) ? '' : icon('image')}</button><div class="img-acts"><button type="button" class="chip" data-pick="bg"><span data-icon="image"></span>${sk.image ? '바꾸기' : '사진 고르기'}</button>${sk.image ? '<button type="button" class="chip danger" data-act="bg-del">지우기</button>' : ''}</div></div>` + UI.seg('채우기', 'skin.imgFit', [['cover', '꽉 채우기'], ['tile', '바둑판']]) + UI.seg('덮개', 'skin.dimTone', [['dark', '어둡게'], ['light', '밝게']]) + UI.slider('덮개 농도', 'skin.dim', 0, 80, 1, '%'));
+  else if (sk.type === 'photo') o = UI.sec('사진 배경', `<div class="row img-row"><button type="button" class="thumb" data-pick="bg" aria-label="배경 사진 고르기" style="${imgURL(sk.image) ? `background-image:url(&quot;${imgURL(sk.image)}&quot;)` : ''}">${imgURL(sk.image) ? '' : icon('image')}</button><div class="img-acts"><button type="button" class="chip" data-pick="bg"><span data-icon="image"></span>${sk.image ? '바꾸기' : '사진 고르기'}</button><button type="button" class="chip" data-act="img-link" data-target="bg"><span data-icon="link"></span>링크</button>${sk.image ? '<button type="button" class="chip danger" data-act="bg-del">지우기</button>' : ''}</div></div>` + UI.seg('채우기', 'skin.imgFit', [['cover', '꽉 채우기'], ['tile', '바둑판']]) + UI.seg('덮개', 'skin.dimTone', [['dark', '어둡게'], ['light', '밝게']]) + UI.slider('덮개 농도', 'skin.dim', 0, 80, 1, '%'));
   if (sk.type === 'pattern' || sk.type === 'photo') o += UI.sec('칸', UI.seg('칸 색', 'skin.panelTone', [['light', '라이트'], ['dark', '다크']]) + UI.slider('불투명도', 'skin.panelAlpha', 40, 100, 1, '%'));
   $('#skin-opts').innerHTML = o;
   $('#accents').innerHTML = ACCENTS.map((c) => `<button type="button" class="accent-dot${sk.accent.toLowerCase() === c ? ' on' : ''}" style="--c:${c}" data-act="accent" data-c="${c}" aria-label="${c}"></button>`).join('') +
@@ -758,6 +759,7 @@ panel.addEventListener('click', (e) => {
     else { const k = a === 'up' ? i - 1 : i + 1; if (k < 0 || k >= arr.length) return; [arr[i], arr[k]] = [arr[k], arr[i]]; }
     if (list === 'sections') { renderMenuList(); renderAbout(); } else renderGallery();
   }
+  else if (a === 'img-link') { imageFromLink(b.dataset.target); return; }
   else if (a === 'g-add') { state.gallery.items.push(blankItem()); renderGallery(); }
   else if (a === 'g-multi') { $('#file-multi').value = ''; $('#file-multi').click(); return; }
   else if (a === 'sec-add') {
@@ -889,24 +891,58 @@ async function putImages(target, files) {
     schedule();
   } catch (err) { toast('이 이미지는 열 수 없어요. JPG나 PNG로 다시 시도해 주세요'); }
 }
+/* 링크로 넣기: 이미지 주소를 이미지 태그로 불러와 파일로 바꿈 */
+async function imageFromLink(target) {
+  const url = await askText('링크로 이미지 넣기', '이미지 주소를 붙여넣어 주세요. 이미지에서 오른쪽 클릭 → ‘이미지 주소 복사’로 가져올 수 있어요.', 'https://');
+  if (url) loadImageURL(target, url.trim());
+}
+function viaImgTag(url) {
+  return new Promise((res, rej) => {
+    const im = new Image();
+    im.crossOrigin = 'anonymous';
+    im.referrerPolicy = 'no-referrer';
+    im.onload = () => {
+      try {
+        const c = document.createElement('canvas');
+        c.width = im.naturalWidth; c.height = im.naturalHeight;
+        c.getContext('2d').drawImage(im, 0, 0);
+        c.toBlob((b) => (b ? res(new File([b], 'link.png', { type: 'image/png' })) : rej()), 'image/png');
+      } catch (e) { rej(e); }
+    };
+    im.onerror = rej;
+    im.src = url;
+  });
+}
+async function loadImageURL(target, url) {
+  if (!/^https?:\/\//i.test(url)) { toast('http로 시작하는 이미지 주소를 넣어 주세요'); return; }
+  toast('이미지를 가져오는 중…');
+  let file = null;
+  try { file = await viaImgTag(url); } catch (e) { /* 막힌 주소 */ }
+  if (!file) { toast('이 주소는 사이트가 막아 둬서 가져올 수 없어요. 이미지를 저장해서 넣어 주세요'); return; }
+  await putImages(target, [file]);
+  toast('이미지를 넣었어요');
+}
+const linkTarget = () => (curPane === 'about' ? 'photo' : curPane === 'style' && state.skin.type === 'photo' ? 'bg' : 'g-new');
 function dropTargetOf(e) {
   const r = e.target.closest && (e.target.closest('[data-drop-row]') || e.target.closest('#card [data-drop]'));
   if (!r) return null;
   return { el: r, target: r.dataset.dropRow || r.dataset.drop };
 }
+const dragKinds = (e) => [...e.dataTransfer.types];
 document.addEventListener('dragover', (e) => {
-  if (![...e.dataTransfer.types].includes('Files')) return;
+  if (!dragKinds(e).some((t) => t === 'Files' || t === 'text/uri-list')) return;
   e.preventDefault();
   $$('.drop-on').forEach((x) => x.classList.remove('drop-on'));
   const d = dropTargetOf(e); if (d) (d.el.querySelector('.thumb, .gthumb') || d.el).classList.add('drop-on');
 });
 document.addEventListener('dragleave', (e) => { if (!e.relatedTarget) $$('.drop-on').forEach((x) => x.classList.remove('drop-on')); });
 document.addEventListener('drop', (e) => {
-  if (![...e.dataTransfer.types].includes('Files')) return;
+  if (!dragKinds(e).some((t) => t === 'Files' || t === 'text/uri-list')) return;
   e.preventDefault();
   $$('.drop-on').forEach((x) => x.classList.remove('drop-on'));
   const d = dropTargetOf(e);
   const files = [...e.dataTransfer.files];
+  if (!files.length) { const u = (e.dataTransfer.getData('text/uri-list') || '').split('\n').find((x) => /^https?:/i.test(x.trim())); if (u) loadImageURL(d ? d.target : linkTarget(), u.trim()); return; }
   if (d) putImages(d.target, files);
   else if (curPane === 'about') putImages('photo', files);
   else putImages('g-new', files);
@@ -914,7 +950,11 @@ document.addEventListener('drop', (e) => {
 document.addEventListener('paste', (e) => {
   if (e.target.closest && e.target.closest('input, textarea')) return;
   const files = [...(e.clipboardData?.files || [])].filter((f) => f.type.startsWith('image/'));
-  if (!files.length) return;
+  if (!files.length) {
+    const txt = (e.clipboardData?.getData('text') || '').trim();
+    if (/^https?:\/\/\S+$/i.test(txt)) { e.preventDefault(); loadImageURL(linkTarget(), txt); }
+    return;
+  }
   e.preventDefault();
   putImages(curPane === 'about' ? 'photo' : curPane === 'style' && state.skin.type === 'photo' ? 'bg' : 'g-new', files);
 });
@@ -1093,6 +1133,15 @@ $('#file-import').addEventListener('change', async (e) => {
   } catch (err) { toast('불러올 수 없는 파일이에요'); }
   e.target.value = '';
 });
+function askText(title, sub, ph = '') {
+  return new Promise((res) => {
+    const inp = $('#modal-input');
+    inp.hidden = false; inp.value = ''; inp.placeholder = ph;
+    ask(title, sub, '넣기').then((ok) => { inp.hidden = true; inp.onkeydown = null; res(ok ? inp.value : null); });
+    setTimeout(() => inp.focus(), 0);
+    inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); $('#modal-ok').click(); } if (e.key === 'Escape') $('#modal-cancel').click(); };
+  });
+}
 function ask(title, sub, okLabel = '확인', danger = false) {
   return new Promise((res) => {
     const m = $('#modal'), ok = $('#modal-ok'), cancel = $('#modal-cancel');
