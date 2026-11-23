@@ -85,7 +85,7 @@ function defaults() {
       { id: 'dream', type: 'dream', title: '드림 성향', on: true, wide: false, showAll: true, opts: { ONLY: false, OPEN: false, CBC: false }, note: '' },
       { id: 'ng', type: 'text', title: 'NG', on: true, wide: false, body: '' },
     ],
-    gallery: { on: true, title: '', pos: 'auto', share: 46, caption: 'over', capColor: '#000000', capAlpha: 58, items: [blankItem(), blankItem()] },
+    gallery: { on: true, title: '', pos: 'auto', share: 46, arrange: 'feature', caption: 'over', capColor: '#000000', capAlpha: 58, items: [blankItem(), blankItem()] },
     text: { head: 'Pretendard', body: 'Pretendard', scale: 100, lh: 1.6, ls: 0, align: 'left', keepAll: true, titleStyle: 'plain', autofit: true, radius: 16 },
     skin: { type: 'white', accent: '#3182f6', wall: 'mist', winTone: 'light', gt: 'light', glass: 'aurora', glassColor: '#dbe7fb', pattern: 'dots', patBg: '#e8f3ff', patFg: '#c4dcfc', patSize: 36, image: null, imgFit: 'cover', dimTone: 'dark', dim: 20, panelTone: 'light', panelAlpha: 92 },
     layout: { ratio: '32', w: 3, h: 2 },
@@ -308,19 +308,48 @@ function sectionHTML(s, side) {
   }
   return `<div class="sec${s.wide ? ' wide' : ' ' + side}" data-go="about">${s.title ? `<div class="lbl">${esc(s.title)}</div>` : ''}${body}</div>`;
 }
-const GRID = {
-  wide: { 1: ['a'], 2: ['a b'], 3: ['a b', 'a c'], 4: ['a b', 'c d'], 5: ['a b c', 'a d e'], 6: ['a b c', 'd e f'] },
-  xwide: { 1: ['a'], 2: ['a b'], 3: ['a b c'], 4: ['a b c d'], 5: ['a b c', 'a d e'], 6: ['a b c', 'd e f'] },
-  tall: { 1: ['a'], 2: ['a', 'b'], 3: ['a a', 'b c'], 4: ['a b', 'c d'], 5: ['a a', 'b c', 'd e'], 6: ['a b', 'c d', 'e f'] },
-};
+/* 갤러리 배치
+   - 균등: 모든 칸이 같은 크기. 마지막 줄은 가운데로 모음
+   - 대표 강조: 홀수일 때 첫 칸이 2×2, 나머지는 1×1 → 작은 칸은 모두 같은 비율, 큰 칸은 정확히 2배
+   칸 수는 한 칸이 캐릭터 그림에 맞는 3:4에 가장 가깝게 되도록 고름 */
+const CELL_AR = 3 / 4;
+const arCost = (ar) => Math.abs(Math.log(ar / CELL_AR));
 function applyGrid(grid) {
-  const n = grid.children.length; if (!n) return;
-  const r = grid.clientWidth / Math.max(1, grid.clientHeight);
-  const rows = GRID[r > 2.1 ? 'xwide' : r > .82 ? 'wide' : 'tall'][n];
-  grid.style.gridTemplateAreas = rows.map((x) => `"${x}"`).join(' ');
-  grid.style.gridTemplateColumns = `repeat(${rows[0].split(' ').length}, minmax(0, 1fr))`;
-  grid.style.gridTemplateRows = `repeat(${rows.length}, minmax(0, 1fr))`;
-  [...grid.children].forEach((c, i) => { c.style.gridArea = 'abcdef'[i]; });
+  const kids = [...grid.children], n = kids.length; if (!n) return;
+  const W = grid.clientWidth, H = Math.max(1, grid.clientHeight);
+  kids.forEach((c) => { c.style.gridArea = ''; c.style.gridColumn = ''; c.style.gridRow = ''; });
+  if (state.gallery.arrange !== 'even' && n % 2 === 1 && n > 1) {
+    // 대표 강조: 3개 → 3×2 또는 2×3, 5개 → 4×2 또는 2×4 중 칸 비율이 더 나은 쪽
+    const across = { 3: [3, 2], 5: [4, 2] }[n];
+    const opts = [{ cols: across[0], rows: across[1], tall: false }, { cols: across[1], rows: across[0], tall: true }];
+    const best = opts.sort((a, b) => arCost((W / a.cols) / (H / a.rows)) - arCost((W / b.cols) / (H / b.rows)))[0];
+    let areas;
+    if (!best.tall) areas = n === 3 ? ['a a b', 'a a c'] : ['a a b c', 'a a d e'];
+    else areas = n === 3 ? ['a a', 'a a', 'b c'] : ['a a', 'a a', 'b c', 'd e'];
+    grid.style.gridTemplateAreas = areas.map((x) => `"${x}"`).join(' ');
+    grid.style.gridTemplateColumns = `repeat(${best.cols}, minmax(0, 1fr))`;
+    grid.style.gridTemplateRows = `repeat(${best.rows}, minmax(0, 1fr))`;
+    kids.forEach((c, i) => { c.style.gridArea = 'abcde'[i]; });
+    return;
+  }
+  // 균등: 열 수를 1 ~ n 중에서 고르고, 반 칸 단위(2배 열)로 마지막 줄을 가운데 정렬
+  // 줄 수를 먼저 정하고 한 줄에 고르게 나눔 (5개면 3 + 2, 4 + 1처럼 한 칸만 남지 않게)
+  let cols = n, cost = Infinity;
+  for (let r = 1; r <= n; r++) {
+    const c = Math.ceil(n / r);
+    if (Math.ceil(n / c) !== r) continue;
+    const k = arCost((W / c) / (H / r)) + (n % c ? .08 : 0); // 줄이 꽉 차면 조금 더 선호
+    if (k < cost) { cost = k; cols = c; }
+  }
+  const rows = Math.ceil(n / cols);
+  grid.style.gridTemplateAreas = 'none';
+  grid.style.gridTemplateColumns = `repeat(${cols * 2}, minmax(0, 1fr))`;
+  grid.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+  kids.forEach((c, i) => {
+    const r = Math.floor(i / cols), inRow = r === rows - 1 ? n - r * cols : cols, k = i - r * cols;
+    c.style.gridColumn = `${cols - inRow + 1 + k * 2} / span 2`;
+    c.style.gridRow = `${r + 1}`;
+  });
 }
 
 const P_RATIO = { 11: [1, 1], 34: [3, 4], 45: [4, 5], 23: [2, 3], 43: [4, 3] };
@@ -510,6 +539,7 @@ const PANES = [
   { id: 'chars', icon: 'image', label: '갤러리', html: () => `${UI.head('갤러리', '1개부터 6개까지, 개수에 맞춰 그리드가 알아서 배치돼요.')}
     <div class="section-title"><span id="g-count"></span></div><div class="section" id="g-list"></div>
     <p class="footnote">사진은 칸에 끌어다 놓거나, 여러 장을 한 번에 고르거나, 링크로 넣어도 돼요. 이미지 주소를 복사해 <b>Ctrl/⌘ + V</b>로 붙여넣어도 돼요. 미리보기에서 사진을 끌면 위치가, 휠을 굴리면 확대가 바뀌어요. 커미션 출처는 이미지 오른쪽 아래에 작게 들어가요.</p>
+    ${UI.sec('배치', UI.seg('홀수일 때', 'gallery.arrange', [['feature', '대표 강조'], ['even', '균등']]), '대표 강조: 첫 칸이 다른 칸의 2배 크기예요. 순서 화살표로 대표를 정해요. 균등: 모든 칸이 같은 크기이고 마지막 줄은 가운데로 모여요. 칸 비율은 사진이 3:4에 가깝게 자동으로 맞춰요.')}
     ${UI.sec('이름표', UI.seg('표시', 'gallery.caption', [['over', '이미지 위'], ['below', '이미지 아래'], ['none', '숨김']]) + `<div id="cap-opts">${UI.color('그라데이션 색', 'gallery.capColor')}${UI.slider('그라데이션 불투명도', 'gallery.capAlpha', 0, 100, 1, '%')}</div>`, '그라데이션은 ‘이미지 위’일 때 이름 뒤에 깔려요. 밝은 색을 고르면 글자가 어두워져요.')}` },
   { id: 'text', icon: 'type', label: '텍스트', html: () => `${UI.head('텍스트', '글꼴과 조판을 정해요.')}
     ${UI.sec('글꼴', UI.font('제목 · 이름', 'text.head', '닉네임, 메뉴 제목, 캐릭터 이름') + UI.font('본문', 'text.body', '소개 글, 태그, 계정 요약'))}
