@@ -467,12 +467,23 @@ function layoutPass() {
   if (prof) { prof.classList.remove('tall'); if (ph && who && ph.offsetHeight > who.offsetHeight * 1.3) prof.classList.add('tall'); }
   if (t.autofit) {
     let lo = .45, hi = 1.12;
-    setF(hi); if (!over()) { $$('.grid', card).forEach(applyGrid); setBand(); return; }
+    setF(hi); if (!over()) { $$('.grid', card).forEach(applyGrid); capGap(); setBand(); return; }
     for (let i = 0; i < 9; i++) { const m = (lo + hi) / 2; setF(m); if (over()) hi = m; else lo = m; }
     setF(lo);
   }
   $$('.grid', card).forEach(applyGrid);
+  capGap();
   setBand();
+}
+/* 글이 적을 때 프로필과 소개 사이 여백이 지나치게 벌어지지 않게: 남는 자리 중 일부만 사이에 두고 나머지는 아래로 */
+function capGap() {
+  const info = $('.info', card), list = $('.list', card); if (!info || !list) return;
+  list.style.marginTop = '0px';
+  const cs = getComputedStyle(info);
+  const bottom = info.offsetTop + info.clientHeight - parseFloat(cs.paddingBottom);
+  const left = bottom - (list.offsetTop + list.offsetHeight);
+  const fz = parseFloat(getComputedStyle(card).fontSize);
+  list.style.marginTop = Math.max(0, Math.min(left, fz * 1.6)) + 'px';
 }
 /* 컬러 블록: 프로필 줄 아래까지 포인트 색 띠 */
 function setBand() {
